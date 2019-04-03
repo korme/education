@@ -4,8 +4,12 @@ wxapp:
   appid: wx955d8d61806b3390
   appsecret: ccdc310b68b14908fb028acd97f07b31
 
-
 spring:
+  session:
+    store-type: jdbc
+    timeout: 3600s
+    jdbc:
+      schema: classpath:org/springframework/session/jdbc/schema-mysql.sql
   mail:
     host: smtp.qq.com
     username: 3320243347@qq.com
@@ -21,6 +25,12 @@ spring:
             enable: true
             required: true
     port: 587
+  thymeleaf:
+    mode: HTML5
+    encoding: UTF-8
+    cache: false
+    servlet:
+      content-type: text/html
 
   mvc:
     static-path-pattern: /image/**
@@ -30,10 +40,10 @@ spring:
     #    username: root
     #    password: admin
     #    url: jdbc:mysql://127.0.0.1:3306/fastfation?useUnicode=true&characterEncoding=UTF-8&allowMultiQueries=true&useSSL=false
-    username: handa
-    password: handaccount
+    username: educa
+    password: education
     #    url: jdbc:mysql://58.49.234.53:3306/fastfation?useUnicode=true&characterEncoding=UTF-8&allowMultiQueries=true&useSSL=false
-    url: jdbc:mysql://39.107.249.209:3306/handaccount?useUnicode=true&characterEncoding=UTF-8&allowMultiQueries=true&useSSL=false&serverTimezone=GMT
+    url: jdbc:mysql://39.107.249.209:3306/education?useUnicode=true&characterEncoding=UTF-8&allowMultiQueries=true&useSSL=false&serverTimezone=GMT
 #    url: jdbc:mysql://120.78.174.107:3306/pandaeat?useUnicode=true&characterEncoding=UTF-8&allowMultiQueries=true&useSSL=false
 #    driver-class-name: com.mysql.jdbc.Driver
 #    type: com.alibaba.druid.pool.DruidDataSource
@@ -79,3 +89,5 @@ spring:
 
 server:
   port: 8080
+
+
