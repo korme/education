@@ -1,5 +1,6 @@
 package korme.xyz.education.common.interceptor;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
@@ -8,14 +9,16 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 public class LoginURLInterceptor implements HandlerInterceptor {
+
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object o) throws Exception {
-        String uri = request.getRequestURI();
-        Object object = request.getSession().getAttribute("userKey");
+        //todo:生产环境取消注释
+        /*String uri = request.getRequestURI();
+        Object object = request.getSession().getAttribute("userId");
         if (null == object){
             response.sendRedirect(request.getContextPath()+"/user/loginError");
             return false;
-        }
+        }*/
         return true;
 
     }

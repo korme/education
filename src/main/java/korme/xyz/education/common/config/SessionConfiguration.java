@@ -1,6 +1,7 @@
-package korme.xyz.education.common.interceptor;
+package korme.xyz.education.common.config;
 
 
+import korme.xyz.education.common.interceptor.LoginURLInterceptor;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistration;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
@@ -19,8 +20,7 @@ public class SessionConfiguration implements  WebMvcConfigurer {
         //loginRegistry.excludePathPatterns("/");
         loginRegistry.excludePathPatterns("/user/login");
         loginRegistry.excludePathPatterns("/user/loginError");
-        loginRegistry.excludePathPatterns("/user/loginout");
-
+        //todo:用于测试
         loginRegistry.excludePathPatterns("/user/test");
 
         // 排除资源请求

@@ -5,7 +5,8 @@ public enum RespCode {
     WRONG(1, "请求错误"),
     WARN_ENPTY(3,"所选内容为空"),
     ERROR_INPUT(4,"输入内容有误"),
-    ERROR_SESSION(5,"用户未登录或Sisson已过期");
+    ERROR_SESSION(5,"用户未登录或Sisson已过期"),
+    ERROR_USER(6,"用户过期或不存在");
 
 
     private Integer code;

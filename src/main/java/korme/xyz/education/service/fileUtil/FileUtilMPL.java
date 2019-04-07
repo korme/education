@@ -53,11 +53,9 @@ public class FileUtilMPL implements FileUtil {
             file.transferTo(dest);
             return "https://www.korme.xyz/image/"+fileName;
         } catch (IllegalStateException e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
             return "0";
         } catch (IOException e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
             return null;
         }
