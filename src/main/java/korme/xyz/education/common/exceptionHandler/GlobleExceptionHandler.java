@@ -28,6 +28,7 @@ public class GlobleExceptionHandler {
         }else {
 
             //TODO:测试环境
+            e.printStackTrace();
             return new ResponseEntity(RespCode.WRONG,e.toString());
 
             //TODO:生产环境

@@ -43,7 +43,9 @@ public class FileUtilMPL implements FileUtil {
                 }
                 builder.append(hv);
             }
+
             String s=builder.toString();
+            //照片文件头为png或jepg
             if(!(s.substring(0,6).equals("FFD8FF")||s.equals("89504E47"))){
                 System.out.println(s.substring(0,6));
                 System.out.println(s);

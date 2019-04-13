@@ -21,7 +21,7 @@ public class SessionConfiguration implements  WebMvcConfigurer {
         loginRegistry.excludePathPatterns("/user/login");
         loginRegistry.excludePathPatterns("/user/loginError");
         //todo:用于测试
-        loginRegistry.excludePathPatterns("/user/test");
+        loginRegistry.excludePathPatterns("/test");
 
         // 排除资源请求
         loginRegistry.excludePathPatterns("/css/login/*.css");

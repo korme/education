@@ -30,7 +30,6 @@ public class UserController {
     TimeUtils timeUtils;
     /*
     * 登录接口
-    * todo：返回值看接口
     * */
     @GetMapping("/login")
     public ResponseEntity login(@NotBlank String userName, @NotBlank String passWord,
@@ -38,11 +37,14 @@ public class UserController {
         Map<String,Object> map=userMapper.findPasswordByUserName(userName,timeUtils.getNowTime());
         String truePassWord=(String)map.get("passWord");
         try{
-            if(!StringJudge.stringIsNull(truePassWord)&&md5Util.getStringMD5(passWord).equals(truePassWord)){
+            if(md5Util.getStringMD5(passWord).equals(truePassWord)){
                 int userId=(int)map.get("userId");
                 HttpSession sessoin=request.getSession();
                 sessoin.setAttribute("userId",userId);
-                return new ResponseEntity(RespCode.SUCCESS,sessoin.getId());
+                map.remove("passWord");
+                map.remove("userId");
+                map.put("sessionKey",sessoin.getId());
+                return new ResponseEntity(RespCode.SUCCESS,map);
             }
         }
         catch (Exception e){
@@ -55,7 +57,7 @@ public class UserController {
     * */
     @GetMapping("/changePassWord")
     public ResponseEntity changePassWord(
-            @NotEmpty @SessionAttribute("userId") Integer userId,
+            @SessionAttribute("userId") Integer userId,
             @NotEmpty String passWord, @NotEmpty String newpassWord)throws Exception{
         //校验新密码
         if (!StringJudge.stringIsPassword(newpassWord))
@@ -66,11 +68,7 @@ public class UserController {
         if(!md5Util.getStringMD5(passWord).equals(truePassWord))
             return new ResponseEntity(RespCode.ERROR_INPUT,"旧密码输入错误！");
 
-
         userMapper.updatePassword(newpassWord,userId);
-
-
-
         return new ResponseEntity(RespCode.SUCCESS);
     }
 
@@ -79,8 +77,5 @@ public class UserController {
     public ResponseEntity loginError() throws ParseException {
         return new ResponseEntity(RespCode.ERROR_SESSION);
     }
-    @GetMapping("/test")
-    public ResponseEntity ttt(@Max(value=1)Integer userId)throws Exception{
-        return new ResponseEntity(RespCode.ERROR_SESSION,userId);
-    }
+
 }

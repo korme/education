@@ -12,10 +12,12 @@ import java.util.Map;
 @Component(value = "UserMapper")
 public interface UserMapper {
     /*
-    * 根据userName，返回未过期用户的密码
-    * */
-    @Select("select passWord,userId from user where userName=#{userName} and overdueTime>#{now}")
+     * 根据userName，返回未过期用户的密码
+     * */
+    @Select("select passWord,userId,headPortrait,nickName,overdueTime,userType from user " +
+            "where userName=#{userName} and overdueTime>#{now}")
     Map<String,Object> findPasswordByUserName(@Param("userName")String userName,@Param("now")String now);
+
 
     /*
      * 根据userId，返回未过期用户的密码
@@ -24,18 +26,18 @@ public interface UserMapper {
     String findPasswordByUserId(@Param("userId")int userId,@Param("now")String now);
 
     /*
-    * 根据userId，返回未过期用户的基本信息
+    * 根据userId，返回用户的基本类型信息
     * */
     @Select("select userName,nickName,kidgardenId,classId,userType " +
-            "from user where userName=#{userId} and overdueTime>#{now}")
-    Map<String,Object> findUserBasic(@Param("userId")String userId,@Param("now")String now);
+            "from user where userId=#{userId}")
+    Map<String,Object> findUserType(@Param("userId")int userId);
 
     /*
-     * 根据userId，返回未过期用户的详细信息
+     * 根据userId，返回用户的详细信息
      * todo:没写
      * */
-    @Select("select userId from user where userName=#{userName} and overdueTime>#{now}")
-    Map<String,Object> findUserAll(@Param("userName")String userName,@Param("now")String now);
+    @Select("select userId from user where userName=#{userName}")
+    Map<String,Object> findUserAll(@Param("userName")String userName);
 
 
     /*
