@@ -24,7 +24,7 @@ HELP.md
 /nbdist/
 /.nb-gradle/
 /build/
-.yml
+*.yml
 
 ### VS Code ###
 .vscode/
