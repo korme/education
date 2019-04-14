@@ -1,6 +1,7 @@
 package korme.xyz.education.controller;
 
 import java.text.ParseException;
+import java.util.Base64;
 import java.util.Map;
 
 import korme.xyz.education.common.response.RespCode;
@@ -12,11 +13,14 @@ import korme.xyz.education.service.timeUtil.TimeUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import sun.security.provider.Sun;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotEmpty;
+import sun.misc.BASE64Decoder;
 
 @Validated
 @RestController
@@ -43,7 +47,7 @@ public class UserController {
                 sessoin.setAttribute("userId",userId);
                 map.remove("passWord");
                 map.remove("userId");
-                map.put("sessionKey",sessoin.getId());
+                map.put("sessionKey",new sun.misc.BASE64Encoder().encode(sessoin.getId().getBytes()));
                 return new ResponseEntity(RespCode.SUCCESS,map);
             }
         }

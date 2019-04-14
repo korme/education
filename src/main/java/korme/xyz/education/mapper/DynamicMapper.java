@@ -1,5 +1,6 @@
 package korme.xyz.education.mapper;
 
+import korme.xyz.education.model.OfficialDynamic;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
@@ -43,7 +44,7 @@ public interface DynamicMapper {
     @Select("select d.dynamicId,d.date,d.excerpt,u.nickName,u.headPortrait,u.userType, d.commentNum,d.pointNum," +
             "d.browseNum from dynamic as d LEFT JOIN user as u ON d.userId=u.userId where " +
             "d.userId=(select userId from user as u2 where u2.kidgardenId=#{kidgardenId} " +
-            "and u2.userType=3 limit 1) and d.delState=0 and u.delState=0 order by d.date DESC;")
+            "and u2.userType=3 limit 1) and d.delState=0 and u.delState=0 order by d.date DESC")
     List<Map<String,Object>> selectPrincipalAll(@Param("kidgardenId")Integer kidgardenId);
 
     /*
@@ -54,46 +55,54 @@ public interface DynamicMapper {
     @Select("select d.dynamicId,d.date,d.excerpt,u.nickName,u.headPortrait,u.userType, d.commentNum,d.pointNum," +
             "d.browseNum from dynamic as d LEFT JOIN user as u ON d.userId=u.userId where " +
             "d.userId=(select userId from user as u2 where u2.kidgardenId=#{kidgardenId} and u2.userType=3 limit 1)" +
-            " and d.date<#{date} and d.delState=0 and u.delState=0 order by d.date DESC;")
+            " and d.date<#{date} and d.delState=0 and u.delState=0 order by d.date DESC")
     List<Map<String,Object>> selectPrincipalBeforeTime(@Param("kidgardenId")Integer kidgardenId,@Param("date")String date);
 
     /*
      * 返回官方发送的所有动态，时间倒序
      * userType:官方
      * */
-    @Select("select d.dynamicId,d.date,d.excerpt,u.nickName,u.headPortrait,u.userType, d.commentNum,d.pointNum," +
+    @Select("select d.dynamicId,d.date,d.transDynamicId,d.excerpt,u.nickName,u.headPortrait,u.userType, d.commentNum,d.pointNum," +
             "d.browseNum from dynamic as d LEFT JOIN user as u ON d.userId=u.userId where " +
-            "d.userType=4 and and d.delState=0 and u.delState=0 order by d.date DESC")
-    List<Map<String,Object>> selectOfficialAll();
+            "u.userType=4 and d.delState=0 and u.delState=0 order by d.date DESC")
+    List<OfficialDynamic> selectOfficialAll();
 
     /*
      * 返回官方发送的动态,时间倒序
      * 条件：动态发送时间小于Date
      * userType：官方
      * */
-    @Select("select d.dynamicId,d.date,d.excerpt,u.nickName,u.headPortrait,u.userType, d.commentNum,d.pointNum," +
+    @Select("select d.dynamicId,d.date,d.transDynamicId,d.excerpt,u.nickName,u.headPortrait,u.userType, d.commentNum,d.pointNum," +
             "d.browseNum from dynamic as d LEFT JOIN user as u ON d.userId=u.userId where " +
-            "d.date<#{date} and d.userType=4 and and d.delState=0 and u.delState=0 order by d.date DESC")
-    List<Map<String,Object>> selectOfficialBeforeTime(@Param("classId")Integer classId,@Param("date")String date);
+            "d.date<#{date} and u.userType=4  and d.delState=0 and u.delState=0 order by d.date DESC")
+    List<OfficialDynamic> selectOfficialBeforeTime(@Param("date")String date);
 
     /*
-     * 返回所有园长发送的所有动态，时间倒序
+     * 返回  所有  园长发送的所有动态，时间倒序
      * userType:园长
      * */
     @Select("select d.dynamicId,d.date,d.excerpt,u.nickName,u.headPortrait,u.userType, d.commentNum,d.pointNum," +
             "d.browseNum from dynamic as d LEFT JOIN user as u ON d.userId=u.userId where " +
-            "d.userType=4 and d.delState=0 and u.delState=0 order by d.date DESC;")
-    List<Map<String,Object>> selectAllPrincipalAll(@Param("kidgardenId")Integer kidgardenId);
+            "u.userType=3 and d.delState=0 and u.delState=0 order by d.date DESC")
+    List<Map<String,Object>> selectAllPrincipalAll();
 
     /*
-     * 返回所有园长发送的动态,时间倒序
+     * 返回  所有  园长发送的动态,时间倒序
      * 条件：动态发送时间小于Date
      * userType：园长
      * */
     @Select("select d.dynamicId,d.date,d.excerpt,u.nickName,u.headPortrait,u.userType, d.commentNum,d.pointNum," +
             "d.browseNum from dynamic as d LEFT JOIN user as u ON d.userId=u.userId where " +
-            "d.userType=4 and d.date<#{date} and d.delState=0 and u.delState=0 order by d.date DESC;")
-    List<Map<String,Object>> selectAllPrincipalBeforeTime(@Param("kidgardenId")Integer kidgardenId,@Param("date")String date);
+            "u.userType=3 and d.date<#{date} and d.delState=0 and u.delState=0 order by d.date DESC")
+    List<Map<String,Object>> selectAllPrincipalBeforeTime(@Param("date")String date);
+
+    /*
+     * 根据Id选择某条评论
+     * */
+    @Select("select d.dynamicId,d.date,d.transDynamicId,d.excerpt,u.nickName,u.headPortrait,u.userType, d.commentNum,d.pointNum," +
+            "d.browseNum from dynamic as d LEFT JOIN user as u ON d.userId=u.userId where " +
+            "d.dynamicId=#{dynamicId} and d.delState=0 and u.delState=0")
+    OfficialDynamic selectDynamicById(@Param("dynamicId")int dynamicId);
 
     /*
      * 选取某条动态的全部一级评论
