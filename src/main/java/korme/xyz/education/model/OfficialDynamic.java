@@ -4,7 +4,11 @@ public class OfficialDynamic {
     private Integer dynamicId;
     private Integer userId;
     private Integer kidgardenId;
+    private String headPortrait;
+    private String nickName;
+    private String userType;
     private Integer classId;
+    private String images;
     private Integer transDynamicId;
     private String excerpt;
     private String content;
@@ -18,6 +22,38 @@ public class OfficialDynamic {
 
 
     public OfficialDynamic() {
+    }
+
+    public String getHeadPortrait() {
+        return headPortrait;
+    }
+
+    public void setHeadPortrait(String headPortrait) {
+        this.headPortrait = headPortrait;
+    }
+
+    public String getNickName() {
+        return nickName;
+    }
+
+    public void setNickName(String nickName) {
+        this.nickName = nickName;
+    }
+
+    public String getUserType() {
+        return userType;
+    }
+
+    public void setUserType(String userType) {
+        this.userType = userType;
+    }
+
+    public String getImages() {
+        return images;
+    }
+
+    public void setImages(String images) {
+        this.images = images;
     }
 
     public OfficialDynamic getChild() {

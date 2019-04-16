@@ -7,4 +7,5 @@ import org.springframework.stereotype.Component;
 @Mapper
 @Component(value = "VideoMapper")
 public interface VideoMapper {
+
 }

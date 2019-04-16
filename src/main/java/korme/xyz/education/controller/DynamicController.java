@@ -31,6 +31,7 @@ public class DynamicController {
     DynamicMapper dynamicMapper;
     @Value("${pagehelp-size}")
     int pagesize;
+    int page=1;
     /*
     * 访问动态页面up刷新
     * */
@@ -54,18 +55,17 @@ public class DynamicController {
      * */
     @GetMapping("allDynamicDown")
     public ResponseEntity allDynamicDown(@SessionAttribute("userId") Integer userId,
-                                         @NotBlank String lastDynamicTime,
-                                       @NotNull Integer page,
+                                         @NotNull Integer lastDynamicId,
                                        @NotNull Integer dynamicCateId){
         switch (dynamicCateId){
             case 1://班级
-                return new ResponseEntity(RespCode.SUCCESS,allClassDynamicDown(userId,lastDynamicTime,page));
+                return new ResponseEntity(RespCode.SUCCESS,allClassDynamicDown(userId,lastDynamicId,page));
             case 2://本园园长
-                return new ResponseEntity(RespCode.SUCCESS,allMyKindergartenDynamicDown(userId,lastDynamicTime,page));
+                return new ResponseEntity(RespCode.SUCCESS,allMyKindergartenDynamicDown(userId,lastDynamicId,page));
             case 3://官方
-                return new ResponseEntity(RespCode.SUCCESS,allOfficialDynamicDown(userId,lastDynamicTime,page));
+                return new ResponseEntity(RespCode.SUCCESS,allOfficialDynamicDown(userId,lastDynamicId,page));
             case 4://所有园长
-                return new ResponseEntity(RespCode.SUCCESS,allDynamicDown(userId,lastDynamicTime,page));
+                return new ResponseEntity(RespCode.SUCCESS,allDynamicDown(userId,lastDynamicId,page));
         }
         return new ResponseEntity(RespCode.ERROR_INPUT);
     }
@@ -73,48 +73,43 @@ public class DynamicController {
     /*
      * 全部班级动态（根据userType返回不同）
      * */
-    @GetMapping("allClassDynamicUp")
     public ResponseEntity allClassDynamicUp(Integer userId){
         Map<String,Object> userType=userMapper.findUserType(userId);
         PageHelper.startPage(1,pagesize);
         List<Map<String,Object>> result=dynamicMapper.selectLimitClassAll((Integer) userType.get("userType"),
                 (Integer)userType.get("kidgardenId"),(Integer)userType.get("classId"));
-
         return new ResponseEntity(RespCode.SUCCESS,result);
     }
     /*
-    * 在时间lastDynamicTime之前的班级动态（根据userType返回不同）
+    * 在时间lastDynamicId之前的班级动态（根据userType返回不同）
     * */
-    @GetMapping("allClassDynamicDown")
     public ResponseEntity allClassDynamicDown(Integer userId,
-                                              String lastDynamicTime,
+                                              Integer lastDynamicId,
                                               int page){
 
         Map<String,Object> userType=userMapper.findUserType(userId);
         PageHelper.startPage(page,pagesize);
         List<Map<String,Object>> result=dynamicMapper.selectLimitClassBeforeTime((Integer) userType.get("userType"),
-                (Integer)userType.get("kidgardenId"),(Integer)userType.get("classId"),lastDynamicTime);
+                (Integer)userType.get("kidgardenId"),(Integer)userType.get("classId"),lastDynamicId);
 
         return new ResponseEntity(RespCode.SUCCESS,result);
     }
     /*
     * 全部本园长动态
     * */
-    @GetMapping("allMyKindergartenDynamicDown")
     public ResponseEntity allMyKindergartenDynamicDown(Integer userId,
-                                              String lastDynamicTime,
+                                              Integer lastDynamicId,
                                               int page){
 
         Map<String,Object> userType=userMapper.findUserType(userId);
         PageHelper.startPage(page,pagesize);
         List<Map<String,Object>> result=
-                dynamicMapper.selectPrincipalBeforeTime((Integer)userType.get("kidgardenId"), lastDynamicTime);
+                dynamicMapper.selectPrincipalBeforeTime((Integer)userType.get("kidgardenId"), lastDynamicId);
         return new ResponseEntity(RespCode.SUCCESS,result);
     }
     /*
-    * 在lastDynamicTime之前的本园长动态
+    * 在lastDynamicId之前的本园长动态
     * */
-    @GetMapping("allMyKindergartenDynamicUp")
     public ResponseEntity allMyKindergartenDynamicUp(Integer userId){
 
         Map<String,Object> userType=userMapper.findUserType(userId);
@@ -124,21 +119,19 @@ public class DynamicController {
         return new ResponseEntity(RespCode.SUCCESS,result);
     }
     /*
-     * 在lastDynamicTime前的所有幼儿园长动态
+     * 在lastDynamicId前的所有幼儿园长动态
      * */
-    @GetMapping("allKindergartenDynamicDown")
     public ResponseEntity allDynamicDown(Integer userId,
-                                         String lastDynamicTime,
+                                         Integer lastDynamicId,
                                          int page){
         PageHelper.startPage(page,pagesize);
         List<Map<String,Object>> result=
-                dynamicMapper.selectAllPrincipalBeforeTime(lastDynamicTime);
+                dynamicMapper.selectAllPrincipalBeforeTime(lastDynamicId);
         return new ResponseEntity(RespCode.SUCCESS,result);
     }
     /*
      * 全部所有幼儿园长动态
      * */
-    @GetMapping("allKindergartenDynamicUp")
     public ResponseEntity allDynamicUp(){
         PageHelper.startPage(1,pagesize);
         List<Map<String,Object>> result=dynamicMapper.selectAllPrincipalAll();
@@ -146,15 +139,14 @@ public class DynamicController {
     }
 
     /*
-     * 在lastDynamicTime前的官方长动态
+     * 在lastDynamicId前的官方长动态
      * */
-    @GetMapping("allOfficialDynamicDown")
     public ResponseEntity allOfficialDynamicDown(Integer userId,
-                                         String lastDynamicTime,
+                                         Integer lastDynamicId,
                                          int page){
         PageHelper.startPage(page,pagesize);
         List<OfficialDynamic> result=
-                dynamicMapper.selectOfficialBeforeTime(lastDynamicTime);
+                dynamicMapper.selectOfficialBeforeTime(lastDynamicId);
         for(OfficialDynamic i:result){
             if(i.getTransDynamicId()!=0){
                 i.setChild(dynamicMapper.selectDynamicById(i.getTransDynamicId()));
@@ -166,7 +158,6 @@ public class DynamicController {
     /*
      * 全部官方动态
      * */
-    @GetMapping("allOfficialDynamicUp")
     public ResponseEntity allOfficialDynamicUp(){
         PageHelper.startPage(1,pagesize);
         List<OfficialDynamic> result=dynamicMapper.selectOfficialAll();
