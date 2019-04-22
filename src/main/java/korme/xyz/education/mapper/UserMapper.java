@@ -1,9 +1,6 @@
 package korme.xyz.education.mapper;
 
-import org.apache.ibatis.annotations.Mapper;
-import org.apache.ibatis.annotations.Param;
-import org.apache.ibatis.annotations.Select;
-import org.apache.ibatis.annotations.Update;
+import org.apache.ibatis.annotations.*;
 import org.springframework.stereotype.Component;
 
 import java.util.Map;
@@ -45,6 +42,12 @@ public interface UserMapper {
      * */
     @Update("UPDATE user set `passWord`=#{passWord} where userId=#{userId}")
     void updatePassword(@Param("passWord")String passWord,@Param("userId")int userId);
+
+    /*
+    * 更新活跃时间
+    * */
+    @Update("UPDATE `user` set lastActiveTime=NOW() where userId=#{userId}")
+    void updateLastActiveTime(@Param("userId")int userId);
 
 
 }

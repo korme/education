@@ -1,10 +1,8 @@
 package korme.xyz.education.mapper;
 
 import korme.xyz.education.model.OfficialDynamic;
-import org.apache.ibatis.annotations.Mapper;
-import org.apache.ibatis.annotations.Param;
-import org.apache.ibatis.annotations.Select;
-import org.apache.ibatis.annotations.SelectProvider;
+import korme.xyz.education.model.receiverModel.DynamicModel;
+import org.apache.ibatis.annotations.*;
 import org.apache.ibatis.jdbc.SQL;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -96,19 +94,23 @@ public interface DynamicMapper {
             "u.userType=3 and d.dynamicId<#{dynamicId} and d.delState=0 and u.delState=0 order by d.date DESC")
     List<Map<String,Object>> selectAllPrincipalBeforeTime(@Param("dynamicId")int dynamicId);
 
-    /*
-     * 根据Id选择某条评论
+     /** 根据Id选择某条评论
      * */
     @Select("select d.dynamicId,d.images,d.date,d.transDynamicId,d.excerpt,u.nickName,u.headPortrait,u.userType, d.commentNum,d.pointNum," +
             "d.browseNum from dynamic as d LEFT JOIN user as u ON d.userId=u.userId where " +
             "d.dynamicId=#{dynamicId} and d.delState=0 and u.delState=0")
     OfficialDynamic selectDynamicById(@Param("dynamicId")int dynamicId);
 
+
+
+
     /*
-     * 选取某条动态的全部一级评论
-     * todo：
-     * */
-    //@Select("")
+    * 插入动态
+    * */
+    @Insert("INSERT INTO `education`.`dynamic`(`userId`, `images`,`kidgardenId`, `classId`, " +
+            "`transDynamicId`, `excerpt`, `content`, `date`) VALUES (#{d.userId},#{d.images}," +
+            "#{d.kidgardenId},#{d.classId},#{d.transDynamicId},#{d.excerpt},#{d.content},#{d.date})")
+    void insertDynamic(@Param("d")DynamicModel d);
 
 
 

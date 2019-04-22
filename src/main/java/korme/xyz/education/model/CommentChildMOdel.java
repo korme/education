@@ -1,6 +1,6 @@
 package korme.xyz.education.model;
 
-public class CommentChild {
+public class CommentChildMOdel {
     int dynamicCommentReplyId;
     int dynamicCommentId;
     int userId;

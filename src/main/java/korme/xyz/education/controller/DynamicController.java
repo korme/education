@@ -7,6 +7,7 @@ import korme.xyz.education.common.response.ResponseEntity;
 import korme.xyz.education.mapper.DynamicMapper;
 import korme.xyz.education.mapper.UserMapper;
 import korme.xyz.education.model.OfficialDynamic;
+import korme.xyz.education.model.receiverModel.DynamicModel;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.validation.annotation.Validated;
@@ -168,8 +169,23 @@ public class DynamicController {
         }
         return new ResponseEntity(RespCode.SUCCESS,result);
     }
-    /*@GetMapping("addDynamic")
-    public ResponseEntity*/
+    /*
+    * 插入动态
+    * */
+    @GetMapping("addDynamic")
+    public ResponseEntity addDynamic(@Validated DynamicModel dynamicModel,
+                                     @SessionAttribute("userId") Integer userId){
+        Map<String,Object> userTypeMap=userMapper.findUserType(userId);
+        dynamicModel.setUserId(userId);
+
+        dynamicModel.setClassId(1);
+
+        if(dynamicModel.getImages().isEmpty())
+            dynamicModel.setImages("[]");
+
+        dynamicMapper.insertDynamic(dynamicModel);
+        return new ResponseEntity(RespCode.SUCCESS);
+    }
 
 
 

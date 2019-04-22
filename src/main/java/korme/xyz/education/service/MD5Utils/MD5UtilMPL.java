@@ -10,11 +10,30 @@ import java.util.Base64;
 @Service
 public class MD5UtilMPL implements MD5Util{
     @Override
-    public String getStringMD5(String s) throws NoSuchAlgorithmException, UnsupportedEncodingException {
-        // 确定计算方法
-        MessageDigest md5 = MessageDigest.getInstance("MD5");
-        Base64.Encoder base64Encoder = Base64.getEncoder();
-        // 加密字符串
-        return base64Encoder.encodeToString(md5.digest(s.getBytes("utf-8")));
+    public String getStringMD5(String sourceStr) throws NoSuchAlgorithmException {
+        try {
+            MessageDigest md = MessageDigest.getInstance("MD5");
+            try {
+                md.update(sourceStr.getBytes("UTF-8"));
+            } catch (UnsupportedEncodingException e) {
+                e.printStackTrace();
+            }
+            byte[] b = md.digest();
+
+            StringBuffer buf = new StringBuffer("");
+            for (int offset = 0; offset < b.length; offset++) {
+                int i = b[offset];
+                if (i < 0) {
+                    i += 256;
+                }
+                if (i < 16) {
+                    buf.append("0");
+                }
+                buf.append(Integer.toHexString(i));
+            }
+            return buf.toString().toUpperCase();
+        } catch (NoSuchAlgorithmException e) {
+            throw e;
+        }
     }
 }

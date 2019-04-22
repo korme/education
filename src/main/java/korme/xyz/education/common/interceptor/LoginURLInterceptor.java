@@ -1,5 +1,6 @@
 package korme.xyz.education.common.interceptor;
 
+import korme.xyz.education.mapper.UserMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.servlet.ModelAndView;
@@ -9,7 +10,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 public class LoginURLInterceptor implements HandlerInterceptor {
-
+    @Autowired
+    UserMapper userMapper;
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object o) throws Exception {
         //todo:生产环境取消注释
@@ -19,6 +21,7 @@ public class LoginURLInterceptor implements HandlerInterceptor {
             response.sendRedirect(request.getContextPath()+"/user/loginError");
             return false;
         }*/
+        userMapper.updateLastActiveTime((int)request.getSession().getAttribute("userId"));
         return true;
 
     }
@@ -32,7 +35,6 @@ public class LoginURLInterceptor implements HandlerInterceptor {
                 request.setAttribute("basePath",basePath);
             }
         }
-
     }
 
     @Override
