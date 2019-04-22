@@ -59,23 +59,7 @@ public class ALiYunOssUtil {
     private static List<PartETag> partETags;
     OSSClient ossClient = null;
 
-    /*public static void main(String[] args) {
-        String endpoint = "oss-cn-beijing.aliyuncs.com";
-        String accessKeyId = "LTAI3gob5PbwHDz0";
-        String accessKeySecret = "on1794kzqCjFKrndum8b2aAG26Xwrp";
-        ALiYunOssUtil aLiYunOssUtil = new ALiYunOssUtil(endpoint, accessKeyId,accessKeySecret);
-        String bucketName = "education-public";
-        String path = "d:/upload/videos/";
-        File[] files = new File(path).listFiles();
-        File[] arrayOfFile1;
-        int j = (arrayOfFile1 = files).length;
-        for (int i = 0; i < j; i++) {
-            File file = arrayOfFile1[i];
-            System.out.println(file.getName() + file.getPath() + file.length());
-
-            aLiYunOssUtil.multipartUploadSample(bucketName,"test/" + file.getName(), file);
-        }
-    }*/
+    
 
     /**
      * @Description: 创建bucket
