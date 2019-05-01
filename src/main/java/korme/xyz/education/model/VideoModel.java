@@ -13,6 +13,29 @@ public class VideoModel {
     private String videoKey;
     private String videoBucket;
     private String videoUrl;
+    private String headPortrait;
+    private String nickName;
+
+    public VideoModel() {
+        this.headPortrait="https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1555998062050&di=ae54dd7b8a19505db3616e6ce1995193&imgtype=0&src=http%3A%2F%2Fn.sinaimg.cn%2Fsinacn10119%2F81%2Fw428h453%2F20190225%2F67ba-htptaqe3925135.jpg";
+        this.nickName="官方";
+    }
+
+    public String getHeadPortrait() {
+        return headPortrait;
+    }
+
+    public void setHeadPortrait(String headPortrait) {
+        this.headPortrait = headPortrait;
+    }
+
+    public String getNickName() {
+        return nickName;
+    }
+
+    public void setNickName(String nickName) {
+        this.nickName = nickName;
+    }
 
     public int getVideoId() {
         return videoId;

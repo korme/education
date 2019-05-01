@@ -2,18 +2,24 @@ package korme.xyz.education.common.config;
 
 
 import korme.xyz.education.common.interceptor.LoginURLInterceptor;
+import korme.xyz.education.mapper.UserMapper;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistration;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 @Configuration
 public class SessionConfiguration implements  WebMvcConfigurer {
+    @Bean
+    public LoginURLInterceptor userInterceptor() {
+        return new LoginURLInterceptor();
+    }
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
-        // 注册拦截器
-        LoginURLInterceptor LoginURLInterceptor = new LoginURLInterceptor();
-        InterceptorRegistration loginRegistry = registry.addInterceptor(LoginURLInterceptor);
+
+        InterceptorRegistration loginRegistry = registry.addInterceptor(userInterceptor());
         // 拦截路径
         loginRegistry.addPathPatterns("/**");
         // 排除路径
@@ -29,4 +35,11 @@ public class SessionConfiguration implements  WebMvcConfigurer {
         loginRegistry.excludePathPatterns("/image/login/*.png");
     }
 
+    @Override
+    public void addCorsMappings(CorsRegistry registry) {
+        registry.addMapping("/**")
+                .allowedMethods("*")
+                .allowedOrigins("*")
+                .allowedHeaders("*");
+    }
 }

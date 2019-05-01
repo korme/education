@@ -14,6 +14,9 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 import java.util.Map;
 
 @Validated
@@ -27,17 +30,26 @@ public class TestController {
     TimeUtils timeUtils;
     @Autowired
     UserMapper userMapper;
+
+
     @Value("${wxapp.appid}")
     String appId;
 
     @GetMapping("/test")
     public ResponseEntity ttt()throws Exception{
-        /*INSERT INTO `education`.`dynamic`(`userId`, `images`,`kidgardenId`, `classId`, " +
-        "`transDynamicId`, `excerpt`, `content`, `date`) VALUES (#{d.userId},#{d.images}," +
-                "#{d.kidgardenId},#{d.classId},#{d.transDynamicId},#{d.excerpt},#{d.content},#{d.date})*/
-        Map<String,Object> temp=userMapper.findUserType(2);
-        int k=(int)temp.get("classId");
+        List<List<String>> result=new ArrayList<>();
+        List<String> test=new ArrayList<>();
+        test.add("你真是个傻逼");
+        test.add("你写代码像蔡徐坤");
+        test.add("我透你妈");
+        long start=System.currentTimeMillis();
 
-        return new ResponseEntity(RespCode.ERROR_SESSION,k);
+        for(int i=0;i<100;i++){
+            result.add(aLiYunOssUtil.textScan(test));
+        }
+        long end=System.currentTimeMillis();
+        System.out.println("程序运行时间： "+(end-start)+"ms");
+
+        return new ResponseEntity(RespCode.ERROR_SESSION,result);
     }
 }

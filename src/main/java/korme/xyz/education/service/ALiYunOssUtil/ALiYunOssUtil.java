@@ -1,52 +1,38 @@
 package korme.xyz.education.service.ALiYunOssUtil;
 
-import java.awt.image.BufferedImage;
-import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStreamWriter;
-import java.io.Writer;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.List;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
-
-import javax.imageio.ImageIO;
-
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
 import com.aliyun.oss.ClientException;
 import com.aliyun.oss.OSSClient;
 import com.aliyun.oss.OSSException;
+import com.aliyun.oss.common.utils.BinaryUtil;
 import com.aliyun.oss.event.ProgressEvent;
 import com.aliyun.oss.event.ProgressEventType;
 import com.aliyun.oss.event.ProgressListener;
-import com.aliyun.oss.model.CannedAccessControlList;
-import com.aliyun.oss.model.CompleteMultipartUploadRequest;
-import com.aliyun.oss.model.CopyObjectResult;
-import com.aliyun.oss.model.CreateBucketRequest;
-import com.aliyun.oss.model.DeleteObjectsRequest;
-import com.aliyun.oss.model.DeleteObjectsResult;
-import com.aliyun.oss.model.GetObjectRequest;
-import com.aliyun.oss.model.InitiateMultipartUploadRequest;
-import com.aliyun.oss.model.InitiateMultipartUploadResult;
-import com.aliyun.oss.model.ListPartsRequest;
-import com.aliyun.oss.model.ObjectAcl;
-import com.aliyun.oss.model.ObjectMetadata;
-import com.aliyun.oss.model.PartETag;
-import com.aliyun.oss.model.PartListing;
-import com.aliyun.oss.model.PartSummary;
-import com.aliyun.oss.model.PutObjectRequest;
-import com.aliyun.oss.model.UploadPartRequest;
-import com.aliyun.oss.model.UploadPartResult;
+import com.aliyun.oss.model.*;
+import com.aliyuncs.DefaultAcsClient;
+import com.aliyuncs.IAcsClient;
+import com.aliyuncs.exceptions.ServerException;
+import com.aliyuncs.green.model.v20180509.TextScanRequest;
+import com.aliyuncs.http.FormatType;
+import com.aliyuncs.http.HttpResponse;
+import com.aliyuncs.profile.DefaultProfile;
+import com.aliyuncs.profile.IClientProfile;
+import korme.xyz.education.service.uuidUTil.UuidUtil;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
+import java.io.*;
+import java.net.URL;
+import java.nio.charset.StandardCharsets;
+import java.util.*;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 @Service
 public class ALiYunOssUtil {
@@ -56,10 +42,112 @@ public class ALiYunOssUtil {
     private String accessKeyId;
     @Value("${oss.accessKeySecret}")
     private String accessKeySecret;
+    @Value("${oss.textEndpoint}")
+    String textEndpoint;
+    @Autowired
+    UuidUtil uuidUtil;
     private static List<PartETag> partETags;
-    OSSClient ossClient = null;
+    private OSSClient ossClient = null;
 
-    
+    /*
+    * 文本检测，返回检测完的文本
+    * */
+    public List<String> textScan(List<String> textList) throws UnsupportedEncodingException, com.aliyuncs.exceptions.ClientException {
+        IClientProfile profile = DefaultProfile.getProfile(textEndpoint, accessKeyId, accessKeySecret);
+        IAcsClient client = new DefaultAcsClient(profile);
+        TextScanRequest textScanRequest = new TextScanRequest();
+        textScanRequest.setAcceptFormat(FormatType.JSON); // 指定api返回格式
+        textScanRequest.setHttpContentType(FormatType.JSON);
+        textScanRequest.setMethod(com.aliyuncs.http.MethodType.POST); // 指定请求方法
+        textScanRequest.setEncoding("UTF-8");
+        textScanRequest.setRegionId(textEndpoint);
+        List<Map<String, Object>> tasks = new ArrayList<Map<String, Object>>();
+        List<String> result=new ArrayList<>();
+        for(String i:textList){
+            Map<String, Object> task = new LinkedHashMap<String, Object>();
+            task.put("dataId", UUID.randomUUID().toString());
+            /**
+             * 待检测的文本，长度不超过10000个字符
+             */
+            task.put("content",i);
+            tasks.add(task);
+        }
+        JSONObject data = new JSONObject();
+        data.put("scenes", Arrays.asList("antispam"));
+        data.put("tasks", tasks);
+        textScanRequest.setHttpContent(data.toJSONString().getBytes("UTF-8"), "UTF-8", FormatType.JSON);
+        // 请务必设置超时时间
+        textScanRequest.setConnectTimeout(3000);
+        textScanRequest.setReadTimeout(6000);
+            HttpResponse httpResponse = client.doAction(textScanRequest);
+            if(httpResponse.isSuccess()){
+                JSONObject scrResponse = JSON.parseObject(new String(httpResponse.getHttpContent(), "UTF-8"));
+                if (200 == scrResponse.getInteger("code")) {
+                    JSONArray taskResults = scrResponse.getJSONArray("data");
+                    for (Object taskResult : taskResults) {
+                        if(200 == ((JSONObject)taskResult).getInteger("code")){
+                            JSONArray sceneResults = ((JSONObject)taskResult).getJSONArray("results");
+                            if(((JSONObject)taskResult).containsKey("filteredContent"))
+                                result.add((String)((JSONObject)taskResult).get("filteredContent"));
+                            else
+                                result.add((String)((JSONObject)taskResult).get("content"));
+
+                        }else{
+                            System.out.println("task process fail:" + ((JSONObject)taskResult).getInteger("code"));
+                        }
+                    }
+                } else {
+                    System.out.println("detect not success. code:" + scrResponse.getInteger("code"));
+                    throw new ClientException();
+                }
+            }else{
+                System.out.println("response not success. status:" + httpResponse.getStatus());
+                throw new ClientException();
+            }
+            return result;
+    }
+    /*
+    * 返回临时上传签名及链接信息
+    *
+    * */
+    public String getTempUploadUrl(String bucketName) throws IOException {
+        String host = "https://" + bucketName + "." + endpoint; // host的格式为 bucketname.endpoint
+        String fileName = uuidUtil.getUUID(); // 用户上传文件时指定的前缀。
+        this.ossClient = new OSSClient(endpoint, accessKeyId, accessKeySecret);
+        try {
+            long expireEndTime = System.currentTimeMillis() + 60 * 1000;
+            Date expiration = new Date(expireEndTime);//过期时间
+            PolicyConditions policyConds = new PolicyConditions();//条件
+            policyConds.addConditionItem(PolicyConditions.COND_CONTENT_LENGTH_RANGE, 0, 10485760);
+            policyConds.addConditionItem(MatchMode.StartWith, PolicyConditions.COND_KEY, fileName);
+            String postPolicy = ossClient.generatePostPolicy(expiration, policyConds);
+            byte[] binaryData = postPolicy.getBytes(StandardCharsets.UTF_8);
+            String encodedPolicy = BinaryUtil.toBase64String(binaryData);
+            String postSignature = ossClient.calculatePostSignature(postPolicy);
+            Map<String, String> respMap = new LinkedHashMap<String, String>();
+            respMap.put("accessid", accessKeyId);
+            respMap.put("policy", encodedPolicy);
+            respMap.put("signature", postSignature);
+            respMap.put("fileName", fileName);
+            respMap.put("host", host);
+            respMap.put("expire", String.valueOf(expireEndTime / 1000));
+            respMap.put("callback", "");
+            String policy = JSON.toJSON(respMap).toString();
+            System.out.println(policy);
+            return policy;
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            return "";
+        }
+    }
+
+
+
+
+
+
+
+
 
     /**
      * @Description: 创建bucket

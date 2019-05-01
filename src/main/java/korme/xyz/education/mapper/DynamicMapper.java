@@ -1,10 +1,10 @@
 package korme.xyz.education.mapper;
 
-import korme.xyz.education.model.OfficialDynamic;
+import korme.xyz.education.model.DynamicOrdinaryModel;
+import korme.xyz.education.model.OfficialDynamicModel;
 import korme.xyz.education.model.receiverModel.DynamicModel;
 import org.apache.ibatis.annotations.*;
 import org.apache.ibatis.jdbc.SQL;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -42,7 +42,7 @@ public interface DynamicMapper {
     @Select("select d.dynamicId,d.images,d.date,d.excerpt,u.nickName,u.headPortrait,u.userType, d.commentNum,d.pointNum," +
             "d.browseNum from dynamic as d LEFT JOIN user as u ON d.userId=u.userId where " +
             "d.userId=(select userId from user as u2 where u2.kidgardenId=#{kidgardenId} " +
-            "and u2.userType=3 limit 1) and d.delState=0 and u.delState=0 order by d.date DESC")
+            "and u2.userType=3 limit 1) and d.delState=0 and u.delState=0 order by d.dynamicId DESC")
     List<Map<String,Object>> selectPrincipalAll(@Param("kidgardenId")Integer kidgardenId);
 
     /*
@@ -53,7 +53,7 @@ public interface DynamicMapper {
     @Select("select d.dynamicId,d.images,d.date,d.excerpt,u.nickName,u.headPortrait,u.userType, d.commentNum,d.pointNum," +
             "d.browseNum from dynamic as d LEFT JOIN user as u ON d.userId=u.userId where " +
             "d.userId=(select userId from user as u2 where u2.kidgardenId=#{kidgardenId} and u2.userType=3 limit 1)" +
-            " and d.dynamicId<#{dynamicId} and d.delState=0 and u.delState=0 order by d.date DESC")
+            " and d.dynamicId<#{dynamicId} and d.delState=0 and u.delState=0 order by d.dynamicId DESC")
     List<Map<String,Object>> selectPrincipalBeforeTime(@Param("kidgardenId")Integer kidgardenId,@Param("dynamicId")Integer dynamicId);
 
     /*
@@ -62,8 +62,8 @@ public interface DynamicMapper {
      * */
     @Select("select d.dynamicId,d.images,d.date,d.transDynamicId,d.excerpt,u.nickName,u.headPortrait,u.userType, d.commentNum,d.pointNum," +
             "d.browseNum from dynamic as d LEFT JOIN user as u ON d.userId=u.userId where " +
-            "u.userType=4 and d.delState=0 and u.delState=0 order by d.date DESC")
-    List<OfficialDynamic> selectOfficialAll();
+            "u.userType=4 and d.delState=0 and u.delState=0 order by d.dynamicId DESC")
+    List<OfficialDynamicModel> selectOfficialAll();
 
     /*
      * 返回官方发送的动态,时间倒序
@@ -72,8 +72,8 @@ public interface DynamicMapper {
      * */
     @Select("select d.dynamicId,d.images,d.date,d.transDynamicId,d.excerpt,u.nickName,u.headPortrait,u.userType, d.commentNum,d.pointNum," +
             "d.browseNum from dynamic as d LEFT JOIN user as u ON d.userId=u.userId where " +
-            "d.dynamicId<#{dynamicId} and u.userType=4  and d.delState=0 and u.delState=0 order by d.date DESC")
-    List<OfficialDynamic> selectOfficialBeforeTime(@Param("dynamicId")Integer dynamicId);
+            "d.dynamicId<#{dynamicId} and u.userType=4  and d.delState=0 and u.delState=0 order by d.dynamicId DESC")
+    List<OfficialDynamicModel> selectOfficialBeforeTime(@Param("dynamicId")Integer dynamicId);
 
     /*
      * 返回  所有  园长发送的所有动态，时间倒序
@@ -81,7 +81,7 @@ public interface DynamicMapper {
      * */
     @Select("select d.dynamicId,d.images,d.date,d.excerpt,u.nickName,u.headPortrait,u.userType, d.commentNum,d.pointNum," +
             "d.browseNum from dynamic as d LEFT JOIN user as u ON d.userId=u.userId where " +
-            "u.userType=3 and d.delState=0 and u.delState=0 order by d.date DESC")
+            "u.userType=3 and d.delState=0 and u.delState=0 order by d.dynamicId DESC")
     List<Map<String,Object>> selectAllPrincipalAll();
 
     /*
@@ -91,15 +91,21 @@ public interface DynamicMapper {
      * */
     @Select("select d.dynamicId,d.images,d.date,d.excerpt,u.nickName,u.headPortrait,u.userType, d.commentNum,d.pointNum," +
             "d.browseNum from dynamic as d LEFT JOIN user as u ON d.userId=u.userId where " +
-            "u.userType=3 and d.dynamicId<#{dynamicId} and d.delState=0 and u.delState=0 order by d.date DESC")
+            "u.userType=3 and d.dynamicId<#{dynamicId} and d.delState=0 and u.delState=0 order by d.dynamicId DESC")
     List<Map<String,Object>> selectAllPrincipalBeforeTime(@Param("dynamicId")int dynamicId);
 
-     /** 根据Id选择某条评论
+    /*
+     * 根据Id选择某条动态
      * */
-    @Select("select d.dynamicId,d.images,d.date,d.transDynamicId,d.excerpt,u.nickName,u.headPortrait,u.userType, d.commentNum,d.pointNum," +
-            "d.browseNum from dynamic as d LEFT JOIN user as u ON d.userId=u.userId where " +
-            "d.dynamicId=#{dynamicId} and d.delState=0 and u.delState=0")
-    OfficialDynamic selectDynamicById(@Param("dynamicId")int dynamicId);
+    @Select("select d.dynamicId,d.images,d.date,d.excerpt,u.nickName,u.headPortrait,u.userType,u.userId, d.commentNum,d.pointNum, d.browseNum from dynamic as d LEFT JOIN user as u ON d.userId=u.userId where d.dynamicId=#{dynamicId} and d.delState=0 and u.delState=0")
+    DynamicOrdinaryModel selectDynamicById(@Param("dynamicId")int dynamicId);
+
+    /*
+     * 根据Id选择某条Offical动态
+     * */
+    @Select("select d.dynamicId,d.images,d.transDynamicId,d.date,d.excerpt,u.nickName,u.headPortrait,u.userType,u.userId, d.commentNum,d.pointNum, d.browseNum from dynamic as d LEFT JOIN user as u ON d.userId=u.userId where d.dynamicId=#{dynamicId} and d.delState=0 and u.delState=0")
+    OfficialDynamicModel selectOffDynamicById(@Param("dynamicId")int dynamicId);
+
 
 
 
@@ -128,13 +134,13 @@ public interface DynamicMapper {
             sql.FROM("dynamic as d LEFT JOIN user as u ON d.userId=u.userId");
 
             if(userType==teacher||userType==parent)
-                sql.WHERE("d.classId="+classId+" and d.delState=0 and u.delState=0");
+                sql.WHERE("d.classId="+classId+" and u.userType in (1,2) and d.delState=0 and u.delState=0");
             else if(userType==principal)
                 sql.WHERE("d.kidgardenId="+kidgardenId+" and d.delState=0 and u.delState=0");
             else
                 sql.WHERE("d.delState=0 and u.delState=0");
 
-            sql.ORDER_BY("d.date");
+            sql.ORDER_BY("d.dynamicId");
             return sql.toString()+" DESC";
         }
 
@@ -145,11 +151,11 @@ public interface DynamicMapper {
             sql.FROM("dynamic as d LEFT JOIN user as u ON d.userId=u.userId");
 
             if(userType==teacher||userType==parent)
-                sql.WHERE("d.classId="+classId+" and d.dynamicId<'"+dynamicId+"' and d.delState=0 and u.delState=0");
+                sql.WHERE("d.classId="+classId+" and u.userType in (1,2) and d.dynamicId<'"+dynamicId+"' and d.delState=0 and u.delState=0");
             else if(userType==principal)
                 sql.WHERE("d.kidgardenId="+kidgardenId+"and d.dynamicId<'"+dynamicId+"' and d.delState=0 and u.delState=0");
 
-            sql.ORDER_BY("d.date");
+            sql.ORDER_BY("d.dynamicId");
             return sql.toString()+" DESC";
         }
 

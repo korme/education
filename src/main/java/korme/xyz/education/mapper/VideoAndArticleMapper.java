@@ -17,12 +17,12 @@ public interface VideoAndArticleMapper {
     /*
     * 查找最新的视频列表
     * */
-    @Select("SELECT v.videoId,v.coverUrl,v.createTime,v.title,v.pointNum,v.browseNum,b.commentNum from video as v where delState=0 ORDER BY videoId DESC")
+    @Select("SELECT v.videoId,v.coverUrl,v.createTime,v.title,v.pointNum,v.browseNum,v.commentNum from video as v where delState=0 ORDER BY videoId DESC")
     List<MainPageModel> selectNewVideo();
     /*
     * 查找 Id 小于 videoId的 视频列表
     * */
-    @Select("SELECT v.videoId,v.coverUrl,v.createTime,v.title,v.pointNum,v.browseNum,b.commentNum from video as v where v.id<#{videoId} and delState=0 ORDER BY videoId DESC")
+    @Select("SELECT v.videoId,v.coverUrl,v.createTime,v.title,v.pointNum,v.browseNum,v.commentNum from video as v where v.videoId<#{videoId} and delState=0 ORDER BY videoId DESC")
     List<MainPageModel> selectVideoBeforeId(@Param("videoId")int videoId);
     /*
     * 查找某一个时间段的文章

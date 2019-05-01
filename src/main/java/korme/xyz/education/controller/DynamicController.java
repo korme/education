@@ -1,13 +1,14 @@
 package korme.xyz.education.controller;
 
-import com.alibaba.fastjson.JSON;
+import com.aliyuncs.exceptions.ClientException;
 import com.github.pagehelper.PageHelper;
 import korme.xyz.education.common.response.RespCode;
 import korme.xyz.education.common.response.ResponseEntity;
 import korme.xyz.education.mapper.DynamicMapper;
 import korme.xyz.education.mapper.UserMapper;
-import korme.xyz.education.model.OfficialDynamic;
+import korme.xyz.education.model.OfficialDynamicModel;
 import korme.xyz.education.model.receiverModel.DynamicModel;
+import korme.xyz.education.service.ALiYunOssUtil.ALiYunOssUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.validation.annotation.Validated;
@@ -16,9 +17,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.SessionAttribute;
 
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
+import java.io.UnsupportedEncodingException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -30,15 +31,18 @@ public class DynamicController {
     UserMapper userMapper;
     @Autowired
     DynamicMapper dynamicMapper;
+    @Autowired
+    ALiYunOssUtil oss;
     @Value("${pagehelp-size}")
     int pagesize;
     int page=1;
     /*
-    * 访问动态页面up刷新
+    * 访问动态页面up刷新 下拉，全部刷新
     * */
     @GetMapping("allDynamicUp")
     public ResponseEntity allDynamicUp(@SessionAttribute("userId") Integer userId,
                                         @NotNull Integer dynamicCateId){
+
         switch (dynamicCateId){
             case 1://班级
                 return new ResponseEntity(RespCode.SUCCESS,allClassDynamicUp(userId));
@@ -52,7 +56,7 @@ public class DynamicController {
         return new ResponseEntity(RespCode.ERROR_INPUT);
     }
     /*
-     * 访问动态页面
+     * 访问动态页面Down刷新，上滑，查看更多
      * */
     @GetMapping("allDynamicDown")
     public ResponseEntity allDynamicDown(@SessionAttribute("userId") Integer userId,
@@ -70,7 +74,41 @@ public class DynamicController {
         }
         return new ResponseEntity(RespCode.ERROR_INPUT);
     }
-
+    /*
+     * 插入动态
+     * */
+    @GetMapping("addDynamic")
+    public ResponseEntity addDynamic(@Validated DynamicModel dynamicModel,
+                                     @SessionAttribute("userId") Integer userId) throws UnsupportedEncodingException, ClientException {
+        Map<String,Object> userTypeMap=userMapper.findUserType(userId);
+        dynamicModel.setUserId(userId);
+        dynamicModel.setClassId((int)userTypeMap.get("classId"));
+        dynamicModel.setKidgardenId((int)userTypeMap.get("kidgardenId"));
+        if(dynamicModel.getImages().isEmpty())
+            dynamicModel.setImages("[]");
+        List<String> tempString=new ArrayList<>();
+        tempString.add(dynamicModel.getContent());
+        tempString.add(dynamicModel.getExcerpt());
+        tempString=oss.textScan(tempString);
+        dynamicModel.setContent(tempString.get(0));
+        dynamicModel.setExcerpt(tempString.get(1));
+        dynamicMapper.insertDynamic(dynamicModel);
+        return new ResponseEntity(RespCode.SUCCESS);
+    }
+    /*
+     * dynamic详情
+     * */
+    @GetMapping("dynamic")
+    public ResponseEntity dynamic(@NotNull Integer dynamicId,
+                                  @SessionAttribute("userId") Integer userId){
+        OfficialDynamicModel result=dynamicMapper.selectOffDynamicById(dynamicId);
+        if(result==null)
+            return new ResponseEntity(RespCode.WARN_ENPTY);
+        if(result.getTransDynamicId()!=0)
+            result.setChild(dynamicMapper.selectDynamicById(result.getTransDynamicId()));
+        return new ResponseEntity(RespCode.SUCCESS,result);
+    }
+///////////////////////////////////////////本类调用方法/////////////////////////////////////////////////////////
     /*
      * 全部班级动态（根据userType返回不同）
      * */
@@ -146,9 +184,9 @@ public class DynamicController {
                                          Integer lastDynamicId,
                                          int page){
         PageHelper.startPage(page,pagesize);
-        List<OfficialDynamic> result=
+        List<OfficialDynamicModel> result=
                 dynamicMapper.selectOfficialBeforeTime(lastDynamicId);
-        for(OfficialDynamic i:result){
+        for(OfficialDynamicModel i:result){
             if(i.getTransDynamicId()!=0){
                 i.setChild(dynamicMapper.selectDynamicById(i.getTransDynamicId()));
             }
@@ -161,31 +199,16 @@ public class DynamicController {
      * */
     public ResponseEntity allOfficialDynamicUp(){
         PageHelper.startPage(1,pagesize);
-        List<OfficialDynamic> result=dynamicMapper.selectOfficialAll();
-        for(OfficialDynamic i:result){
+        List<OfficialDynamicModel> result=dynamicMapper.selectOfficialAll();
+        for(OfficialDynamicModel i:result){
             if(i.getTransDynamicId()!=0){
                 i.setChild(dynamicMapper.selectDynamicById(i.getTransDynamicId()));
             }
         }
         return new ResponseEntity(RespCode.SUCCESS,result);
     }
-    /*
-    * 插入动态
-    * */
-    @GetMapping("addDynamic")
-    public ResponseEntity addDynamic(@Validated DynamicModel dynamicModel,
-                                     @SessionAttribute("userId") Integer userId){
-        Map<String,Object> userTypeMap=userMapper.findUserType(userId);
-        dynamicModel.setUserId(userId);
+    ///////////////////////////////////////////本类调用方法/////////////////////////////////////////////////////////
 
-        dynamicModel.setClassId(1);
-
-        if(dynamicModel.getImages().isEmpty())
-            dynamicModel.setImages("[]");
-
-        dynamicMapper.insertDynamic(dynamicModel);
-        return new ResponseEntity(RespCode.SUCCESS);
-    }
 
 
 

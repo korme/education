@@ -24,7 +24,6 @@ import java.util.List;
 
 @Validated
 @RestController
-@RequestMapping("video")
 public class MainPageController {
     @Autowired
     VideoAndArticleMapper vaMapper;
@@ -35,7 +34,7 @@ public class MainPageController {
     @Value("${pagehelp-size}")
     int pagesize;
     int page=1;
-    @RequestMapping(value = "/mainPage")
+    @RequestMapping(value = "mainPage")
     public ResponseEntity mainPage(@SessionAttribute("userId") Integer userId,
                                    @NotNull Integer id){
         List<MainPageModel> result;
@@ -62,7 +61,7 @@ public class MainPageController {
 
     @RequestMapping(value = "/findVideoOrAticle")
     public ResponseEntity findVideoOrAticle(@SessionAttribute("userId") Integer userId,
-                                            @NotNull @Size(min = 1,max = 2) Integer id,
+                                            @NotNull Integer id,
                                             @NotNull Integer type){
         if(type==1){//video
             VideoModel result=vaMapper.selectSingleVideo(id);
@@ -74,12 +73,13 @@ public class MainPageController {
             result.setVideoUrl(url);
             return new ResponseEntity(RespCode.SUCCESS,result);
         }
-        else{//article
+        else if(type==2){//article
             ArticleModel result=vaMapper.selectSingleArticle(id);
             if(result==null)
                 return new ResponseEntity(RespCode.ERROR_INPUT,"文章不存在！");
             return new ResponseEntity(RespCode.SUCCESS,result);
         }
+        return new ResponseEntity(RespCode.ERROR_INPUT);
     }
 
 

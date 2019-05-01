@@ -1,5 +1,6 @@
 package korme.xyz.education.common.exceptionHandler;
 
+import com.aliyun.oss.ClientException;
 import korme.xyz.education.common.response.RespCode;
 import korme.xyz.education.common.response.ResponseEntity;
 import org.springframework.validation.BindException;
@@ -10,6 +11,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.ConstraintViolationException;
+import java.io.UnsupportedEncodingException;
 import java.util.List;
 
 /*
@@ -25,7 +27,14 @@ public class GlobleExceptionHandler {
         if (e instanceof ConstraintViolationException){
             ConstraintViolationException ex = (ConstraintViolationException)e;
             return new ResponseEntity(RespCode.ERROR_INPUT,ex.getMessage());
-        }else {
+        }
+        else if(e instanceof UnsupportedEncodingException){
+            return new ResponseEntity(RespCode.ERROR_INPUT,"编码错误！");
+        }
+        else if(e instanceof ClientException){
+            return new ResponseEntity(RespCode.ERROR_NETWORK);
+        }
+        else {
 
             //TODO:测试环境
             e.printStackTrace();

@@ -1,6 +1,6 @@
 package korme.xyz.education.model;
 
-public class OfficialDynamic {
+public class OfficialDynamicModel {
     private Integer dynamicId;
     private Integer userId;
     private Integer kidgardenId;
@@ -18,10 +18,10 @@ public class OfficialDynamic {
     private Integer viewStatus;
     private String date;
     private String delState;
-    private OfficialDynamic child;
+    private DynamicOrdinaryModel child;
 
 
-    public OfficialDynamic() {
+    public OfficialDynamicModel() {
     }
 
     public String getHeadPortrait() {
@@ -56,11 +56,11 @@ public class OfficialDynamic {
         this.images = images;
     }
 
-    public OfficialDynamic getChild() {
+    public DynamicOrdinaryModel getChild() {
         return child;
     }
 
-    public void setChild(OfficialDynamic child) {
+    public void setChild(DynamicOrdinaryModel child) {
         this.child = child;
     }
 

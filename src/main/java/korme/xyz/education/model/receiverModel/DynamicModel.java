@@ -11,8 +11,8 @@ import javax.validation.constraints.NotNull;
 
 
 public class DynamicModel {
-
-    @NotNull private Integer dynamicId;
+    //此Model的date在构造时已被注入，若不注入则使用DynamicOrdinaryModel
+    private Integer dynamicId;
     private Integer userId;
     private Integer kidgardenId;
     private Integer classId;
