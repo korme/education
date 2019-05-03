@@ -97,14 +97,20 @@ public interface DynamicMapper {
     /*
      * 根据Id选择某条动态
      * */
-    @Select("select d.dynamicId,d.images,d.date,d.excerpt,u.nickName,u.headPortrait,u.userType,u.userId, d.commentNum,d.pointNum, d.browseNum from dynamic as d LEFT JOIN user as u ON d.userId=u.userId where d.dynamicId=#{dynamicId} and d.delState=0 and u.delState=0")
+    @Select("select d.dynamicId,d.images,d.date,d.excerpt,u.nickName,u.headPortrait,u.userType,u.userId, d.commentNum,d.pointNum, d.browseNum,d.content from dynamic as d LEFT JOIN user as u ON d.userId=u.userId where d.dynamicId=#{dynamicId} and d.delState=0")
     DynamicOrdinaryModel selectDynamicById(@Param("dynamicId")int dynamicId);
 
     /*
      * 根据Id选择某条Offical动态
      * */
-    @Select("select d.dynamicId,d.images,d.transDynamicId,d.date,d.excerpt,u.nickName,u.headPortrait,u.userType,u.userId, d.commentNum,d.pointNum, d.browseNum from dynamic as d LEFT JOIN user as u ON d.userId=u.userId where d.dynamicId=#{dynamicId} and d.delState=0 and u.delState=0")
+    @Select("select d.dynamicId,d.images,d.transDynamicId,d.date,d.excerpt,u.nickName,u.headPortrait,u.userType,u.userId, d.commentNum,d.pointNum, d.browseNum,d.content from dynamic as d LEFT JOIN user as u ON d.userId=u.userId where d.dynamicId=#{dynamicId} and d.delState=0 ")
     OfficialDynamicModel selectOffDynamicById(@Param("dynamicId")int dynamicId);
+
+    /*
+    * 返回动态创建者Id
+    * */
+    @Select("select userId from dynamic where dynamicId=#{dynamicId}")
+    int selectUserIdByDynamicId(@Param("dynamicId")int dynamicId);
 
 
 

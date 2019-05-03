@@ -1,9 +1,11 @@
 package korme.xyz.education.model.receiverModel;
 
+import javax.validation.constraints.NotBlank;
+
 public class NoticeModel {
     //noticeTitle,n.content,n.kidgardenId,n.creatorId,u.headPortrait,u.nickName
-    private String noticeTitle;
-    private String content;
+    @NotBlank private String noticeTitle;
+    @NotBlank private String content;
     private int kidgardenId;
     private int userId;
     private String headPortrait;

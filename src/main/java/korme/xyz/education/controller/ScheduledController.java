@@ -15,7 +15,8 @@ public class ScheduledController {
     ConfigMapper configMapper;
     @Value("${deleteCycle}")
     int deleteCycle;
-    @Scheduled(cron = "0 0 3 * * ? *")
+    //todo: 无法启动
+    @Scheduled(cron = "0 0 3 * * ?")
     public void dailyDeleteMessage(){
         Calendar now = Calendar.getInstance();
         now.add(Calendar.DAY_OF_MONTH, 0-deleteCycle);
@@ -23,11 +24,8 @@ public class ScheduledController {
         configMapper.deleteMessage(endDate);
     }
 
-    @Scheduled(cron = "0 0 3 1 * ? *")
+    @Scheduled(cron = "0 0 3 1 * ?")
     public void resetScore(){
         configMapper.resetScore();
     }
-
-
-
 }

@@ -1,5 +1,6 @@
 package korme.xyz.education.mapper;
 
+import korme.xyz.education.model.UserTypeModel;
 import org.apache.ibatis.annotations.*;
 import org.springframework.stereotype.Component;
 
@@ -25,9 +26,16 @@ public interface UserMapper {
     /*
     * 根据userId，返回用户的基本类型信息
     * */
-    @Select("select userName,nickName,kidgardenId,classId,userType " +
+    @Select("select userName,nickName,kidgardenId,classId,userType,lastActiveTime " +
             "from user where userId=#{userId}")
     Map<String,Object> findUserType(@Param("userId")int userId);
+
+    /*
+     * 根据userId，返回用户的基本类型信息
+     * */
+    @Select("select userName,nickName,kidgardenId,classId,userType,lastActiveTime " +
+            "from user where userId=#{userId}")
+    UserTypeModel findUserTypeClea(@Param("userId")int userId);
 
     /*
      * 根据userId，返回用户的详细信息

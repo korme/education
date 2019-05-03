@@ -15,6 +15,7 @@ import javax.validation.constraints.NotNull;
 import java.util.List;
 
 @RestController
+@RequestMapping("message")
 public class MessageController {
     @Autowired
     MessageMapper messageMapper;
@@ -38,4 +39,6 @@ public class MessageController {
     public ResponseEntity countMessage(@SessionAttribute("userId") Integer userId){
         return new ResponseEntity(RespCode.SUCCESS,messageMapper.countMessage(userId));
     }
+
+
 }

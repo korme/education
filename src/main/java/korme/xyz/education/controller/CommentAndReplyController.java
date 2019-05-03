@@ -5,7 +5,10 @@ import korme.xyz.education.common.response.RespCode;
 import korme.xyz.education.common.response.ResponseEntity;
 import korme.xyz.education.mapper.CommentMapper;
 import korme.xyz.education.mapper.CommentReplyMapper;
+import korme.xyz.education.mapper.DynamicMapper;
+import korme.xyz.education.mapper.MessageMapper;
 import korme.xyz.education.model.receiverModel.CommentModel;
+import korme.xyz.education.model.receiverModel.CommentReplyModel;
 import korme.xyz.education.service.ALiYunOssUtil.ALiYunOssUtil;
 import org.hibernate.validator.constraints.Range;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,6 +34,10 @@ public class CommentAndReplyController {
     CommentReplyMapper commentReplyMapper;
     @Autowired
     ALiYunOssUtil oss;
+    @Autowired
+    MessageMapper messageMapper;
+    @Autowired
+    DynamicMapper dynamicMapper;
     @Value("${pagehelp-size}")
     int pagesize;
     @RequestMapping(value = "allComment")
@@ -153,6 +160,8 @@ public class CommentAndReplyController {
                 case 3://动态
                     commentMapper.insertDynamicComment(comment);
                     commentMapper.addDynamicCommentNum(comment.getpId());
+                    int replyedUserId=dynamicMapper.selectUserIdByDynamicId(comment.getpId());
+                    messageMapper.insertMessage(replyedUserId,3,comment.getpId(),comment.getContent());
                     break;
                 case 4://老师
                     commentMapper.insertTeacherComment(comment);
@@ -169,7 +178,7 @@ public class CommentAndReplyController {
     }
     @RequestMapping(value = "addCommentReply")
     public ResponseEntity addCommentReply(@SessionAttribute("userId")int userId,
-                                     @Validated CommentModel commentReply,
+                                     @Validated CommentReplyModel commentReply,
                                      @NotNull Integer type) {
         try {
             commentReply.setUserId(userId);
@@ -179,16 +188,25 @@ public class CommentAndReplyController {
             commentReply.setContent(tempString.get(0));
             switch (type) {
                 case 1://视频
-                    commentMapper.insertVideoComment(commentReply);
+                    commentReplyMapper.insertVideoCommentReply(commentReply);
                     commentMapper.updateVideoCommentHasChild(1,commentReply.getpId());
+                    if(commentReply.getReplyUserId()==0)
+                        commentReply.setReplyUserId(commentReplyMapper.selectUserIdByVideoCommentId(commentReply.getpId()));
+                    messageMapper.insertMessage(commentReply.getReplyUserId(),1,commentReply.getpId(),commentReply.getContent());
                     break;
                 case 2://文章
-                    commentMapper.insertArticleComment(commentReply);
+                    commentReplyMapper.insertArticleCommentReply(commentReply);
                     commentMapper.updateArticleCommentHasChild(1,commentReply.getpId());
+                    if(commentReply.getReplyUserId()==0)
+                        commentReply.setReplyUserId(commentReplyMapper.selectUserIdByArticleCommentId(commentReply.getpId()));
+                    messageMapper.insertMessage(commentReply.getReplyUserId(),1,commentReply.getpId(),commentReply.getContent());
                     break;
                 case 3://动态
-                    commentMapper.insertDynamicComment(commentReply);
+                    commentReplyMapper.insertDynamicCommentReply(commentReply);
                     commentMapper.updateDynamicCommentHasChild(1,commentReply.getpId());
+                    if(commentReply.getReplyUserId()==0)
+                        commentReply.setReplyUserId(commentReplyMapper.selectUserIdByDynamicCommentId(commentReply.getpId()));
+                    messageMapper.insertMessage(commentReply.getReplyUserId(),1,commentReply.getpId(),commentReply.getContent());
                     break;
                 default:
                     return new ResponseEntity(RespCode.ERROR_INPUT);
@@ -200,4 +218,63 @@ public class CommentAndReplyController {
         }
         return new ResponseEntity(RespCode.SUCCESS);
     }
+    @RequestMapping("delComment")
+    public ResponseEntity delComment(@SessionAttribute("userId")int userId,
+                                          @NotNull Integer commentId,
+                                          @NotNull Integer type){
+
+        switch (type) {
+            case 1://视频
+                commentMapper.delVideoComment(commentId);
+                commentMapper.decVideoCommentNum(commentId);
+                break;
+            case 2://文章
+                commentMapper.delArticleComment(commentId);
+                commentMapper.decArticleCommentNum(commentId);
+                break;
+            case 3://动态
+                commentMapper.delDynamicComment(commentId);
+                commentMapper.decDynamicCommentNum(commentId);
+                break;
+            case 4:
+                commentMapper.delTeacherComment(commentId);
+            default:
+                return new ResponseEntity(RespCode.ERROR_INPUT);
+        }
+        return new ResponseEntity(RespCode.SUCCESS);
+    }
+    @RequestMapping("delCommentReply")
+    public ResponseEntity delCommentReply(@SessionAttribute("userId")int userId,
+                                          @NotNull Integer commentReplyId,
+                                          @NotNull Integer type){
+        int commentId;
+        switch (type) {
+            case 1://视频
+                commentId=commentReplyMapper.selectVideoCommentIdByReplyId(commentReplyId);
+                if(commentId==0)
+                    return new ResponseEntity(RespCode.ERROR_INPUT);
+                commentReplyMapper.delVideoCommentReply(commentReplyId);
+                commentMapper.updateVideoCommentHasChild(commentReplyMapper.countVideoCommentReply(commentReplyId),commentReplyId);
+                break;
+            case 2://文章
+                commentId=commentReplyMapper.selectArticleCommentIdByReplyId(commentReplyId);
+                if(commentId==0)
+                    return new ResponseEntity(RespCode.ERROR_INPUT);
+                commentReplyMapper.delArticleCommentReply(commentReplyId);
+                commentMapper.updateArticleCommentHasChild(commentReplyMapper.countArticleCommentReply(commentReplyId),commentReplyId);
+                break;
+            case 3://动态
+                commentId=commentReplyMapper.selectDynamicCommentIdByReplyId(commentReplyId);
+                if(commentId==0)
+                    return new ResponseEntity(RespCode.ERROR_INPUT);
+                commentReplyMapper.delDynamicCommentReply(commentReplyId);
+                commentMapper.updateDynamicCommentHasChild(commentReplyMapper.countDynamicCommentReply(commentReplyId),commentReplyId);
+                break;
+            default:
+                return new ResponseEntity(RespCode.ERROR_INPUT);
+        }
+        return new ResponseEntity(RespCode.SUCCESS);
+    }
+
+
 }

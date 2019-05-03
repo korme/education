@@ -32,12 +32,12 @@ public interface VideoAndArticleMapper {
     /*
     * 查找某个视频的信息
     * */
-    @Select("SELECT videoId,coverUrl,createTime,title,pointNum,browseNum,commentNum,description,videoKey,videoBucket from video where videoId=#{videoId} and delState=0;")
+    @Select("SELECT v.videoId,v.coverUrl,v.createTime,v.title,v.pointNum,v.browseNum,v.commentNum,v.description,v.videoKey,v.videoBucket,a.headPortrait,a.nickName from video v LEFT JOIN administrator a on v.creatorId=a.id where v.videoId=#{videoId} and v.delState=0")
     VideoModel selectSingleVideo(@Param("videoId")int videoId);
 
     /*
     * 查找文章信息
     * */
-    @Select("select articleId,imgUrl,articleTitle,content,createTime,pointNum,browseNum,commentNum from article where articleId=#{articleId} and delState=0 ")
+    @Select("select ar.articleId,ar.imgUrl,ar.articleTitle,ar.content,ar.createTime,ar.pointNum,ar.browseNum,ar.commentNum,ad.headPortrait,ad.nickName from article ar LEFT JOIN administrator ad on ar.creatorId=ad.id where ar.articleId=#{articleId} and ar.delState=0 ")
     ArticleModel selectSingleArticle(@Param("articleId")int articleId);
 }

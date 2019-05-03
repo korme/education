@@ -20,7 +20,7 @@ public interface MessageMapper {
     @Select("SELECT m.messageId,m.userId,m.commentId,m.content,u.nickName,u.headPortrait ,u.userType from message m LEFT JOIN `user` u on m.userId=u.userId where m.userId=#{userId} order by m.messageId desc")
     List<MessageModel> selectMessage(@Param("userId")int userId);
     /*
-     * 返回messageId在lastId前的message//todo:没对接controller
+     * 返回messageId在lastId前的message
      * */
     @Select("SELECT m.messageId,m.userId,m.commentId,m.content,u.nickName,u.headPortrait ,u.userType,m.isRead from message m LEFT JOIN `user` u on m.userId=u.userId where m.userId=#{userId} and m.messageId<#{lastId} order by m.messageId desc")
     List<MessageModel> selectMessageBefore(@Param("userId")int userId,@Param("lastId")int lastId);

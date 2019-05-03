@@ -26,13 +26,13 @@ public interface CommentMapper {
     List<Map<String,Object>> selectTeacherComment(@Param("teacherId")int teacherId);
 
 
-    @Select("SELECT c.articleCommentId,c.content,c.createTime,c.haschild,u.userId,u.nickName,u.userType,u.headPortrait from article_comment as c LEFT JOIN user as u on c.userId= u.userId where c.articleId=#{articleId} and c.articleCommentId<#{id} and u.delState=0 and c.delState=0 ORDER BY c.createTime DESC")
+    @Select("SELECT c.articleCommentId,c.articleId,c.content,c.createTime,c.haschild,u.userId,u.nickName,u.userType,u.headPortrait from article_comment as c LEFT JOIN user as u on c.userId= u.userId where c.articleId=#{articleId} and c.articleCommentId<#{id} and u.delState=0 and c.delState=0 ORDER BY c.createTime DESC")
     List<Map<String,Object>> selectArticleCommentBefore(@Param("articleId")int articleId,@Param("id")int lastId);
 
-    @Select("SELECT c.videoCommentId,c.content,c.createTime,c.haschild,u.userId,u.nickName,u.userType,u.headPortrait from video_comment as c LEFT JOIN user as u on c.userId= u.userId where c.videoId=#{videoId} and c.videoCommentId<#{id} and u.delState=0 and c.delState=0 ORDER BY c.createTime DESC")
+    @Select("SELECT c.videoCommentId,c.videoId,c.content,c.createTime,c.haschild,u.userId,u.nickName,u.userType,u.headPortrait from video_comment as c LEFT JOIN user as u on c.userId= u.userId where c.videoId=#{videoId} and c.videoCommentId<#{id} and u.delState=0 and c.delState=0 ORDER BY c.createTime DESC")
     List<Map<String,Object>> selectVideoCommentBefore(@Param("videoId")int videoId,@Param("id")int lastId);
 
-    @Select("SELECT c.dynamicCommentId,c.content,c.createTime,c.haschild,u.userId,u.nickName,u.userType,u.headPortrait from dynamic_comment as c LEFT JOIN user as u on c.userId= u.userId where c.dynamicId=#{dynamicId} and c.dynamicCommentId<#{id} and u.delState=0 and c.delState=0 ORDER BY c.createTime DESC")
+    @Select("SELECT c.dynamicCommentId,c.DynamicId,c.content,c.createTime,c.haschild,u.userId,u.nickName,u.userType,u.headPortrait from dynamic_comment as c LEFT JOIN user as u on c.userId= u.userId where c.dynamicId=#{dynamicId} and c.dynamicCommentId<#{id} and u.delState=0 and c.delState=0 ORDER BY c.createTime DESC")
     List<Map<String,Object>> selectDynamicCommentBefore(@Param("dynamicId")int dynamicId,@Param("id")int lastId);
 
     @Select("SELECT c.teacherCommentId,c.content,c.createTime,u.userId,u.nickName,u.userType,u.headPortrait from teacher_comment as c LEFT JOIN user as u on c.userId= u.userId where c.teacherId=#{teacherId} and c.teacherCommentId<#{id} and u.delState=0 and c.delState=0 ORDER BY c.createTime DESC")
@@ -46,20 +46,30 @@ public interface CommentMapper {
     void insertDynamicComment(@Param("c")CommentModel c);
     @Insert("INSERT INTO `education`.`teacher_comment`(`teacherId`, `userId`, `content`, `createTime`) VALUES ( #{c.pId}, #{c.userId}, #{c.content}, NOW())")
     void insertTeacherComment(@Param("c")CommentModel c);
-
+    //评论数自增1
     @Update("update video set commentNum=commentNum+1 where videoId=#{videoId}")
     void addVideoCommentNum(@Param("videoId")int videoId);
     @Update("update article set commentNum=commentNum+1 where articleId=#{articleId}")
     void addArticleCommentNum(@Param("articleId")int articleId);
     @Update("update dynamic set commentNum=commentNum+1 where dynamicId=#{dynamicId}")
     void addDynamicCommentNum(@Param("dynamicId")int dynamicId);
-    //todo:评论删除
+    //删除评论
+    @Update("update video_comment set delState=1 , delTime=NOW() where videoCommentId=#{videoCommentId}")
+    void delVideoComment(@Param("videoCommentId")int videoCommentId);
+    @Update("update article_comment set delState=1 , delTime=NOW() where articleCommentId=#{articleCommentId}")
+    void delArticleComment(@Param("articleCommentId")int articleCommentId);
+    @Update("update dynamic_comment set delState=1, delTime=NOW() where dynamicCommentId=#{dynamicCommentId}")
+    void delDynamicComment(@Param("dynamicCommentId")int dynamicCommentId);
+    @Update("update teacher_comment set delState=1, delTime=NOW() where teacherCommentId=#{teacherCommentId}")
+    void delTeacherComment(@Param("teacherCommentId")int teacherCommentId);
+
+    //评论数减一
     @Update("update video set commentNum=commentNum-1 where videoId=#{videoId}")
-    void decCommentNum(@Param("videoId")int videoId);
+    void decVideoCommentNum(@Param("videoId")int videoId);
     @Update("update article set commentNum=commentNum-1 where articleId=#{articleId}")
-    void decArticleIdNum(@Param("articleId")int articleId);
+    void decArticleCommentNum(@Param("articleId")int articleId);
     @Update("update dynamic set commentNum=commentNum-1 where dynamicId=#{dynamicId}")
-    void decDynamicIdNum(@Param("dynamicId")int dynamicId);
+    void decDynamicCommentNum(@Param("dynamicId")int dynamicId);
 
 
 

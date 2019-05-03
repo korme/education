@@ -34,6 +34,6 @@ public interface TeacherScoreMapper {
     /*
      *查询某家长校内老师
      * */
-    @Select("SELECT u.userId,u.nickName,u.headPortrait,u.score from user as u where kidgardenId=(select kidgardenId where userId=#{userId}) and userType=2 order by u.score DESC")
-    List<ScoreModel> selectKidgardenTeacher(@Param("userId")int userId);
+    @Select("SELECT u.userId,u.nickName,u.headPortrait,u.score from user as u where kidgardenId=#{kidgardenId} and userType=2 order by u.score DESC")
+    List<ScoreModel> selectKidgardenTeacher(@Param("kidgardenId")int kidgardenId);
 }
