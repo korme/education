@@ -38,7 +38,7 @@ public class TestController {
     @GetMapping("/test")
     public ResponseEntity ttt()throws Exception{
         List<List<String>> result=new ArrayList<>();
-        List<String> test=new ArrayList<>();
+        /*List<String> test=new ArrayList<>();
         test.add("你真是个傻逼");
         test.add("你写代码像蔡徐坤");
         test.add("我透你妈");
@@ -48,7 +48,7 @@ public class TestController {
             result.add(aLiYunOssUtil.textScan(test));
         }
         long end=System.currentTimeMillis();
-        System.out.println("程序运行时间： "+(end-start)+"ms");
+        System.out.println("程序运行时间： "+(end-start)+"ms");*/
 
         return new ResponseEntity(RespCode.ERROR_SESSION,result);
     }

@@ -8,6 +8,15 @@ public class MessageModel {
     private String nickName;
     private String headPortrait;
     private int userType;
+    private int messageType;
+
+    public int getMessageType() {
+        return messageType;
+    }
+
+    public void setMessageType(int messageType) {
+        this.messageType = messageType;
+    }
 
     public int getCommentId() {
         return commentId;

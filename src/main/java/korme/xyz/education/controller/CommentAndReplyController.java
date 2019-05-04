@@ -7,6 +7,7 @@ import korme.xyz.education.mapper.CommentMapper;
 import korme.xyz.education.mapper.CommentReplyMapper;
 import korme.xyz.education.mapper.DynamicMapper;
 import korme.xyz.education.mapper.MessageMapper;
+import korme.xyz.education.model.CommentWholeModel;
 import korme.xyz.education.model.receiverModel.CommentModel;
 import korme.xyz.education.model.receiverModel.CommentReplyModel;
 import korme.xyz.education.service.ALiYunOssUtil.ALiYunOssUtil;
@@ -22,6 +23,7 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -138,6 +140,33 @@ public class CommentAndReplyController {
             return new ResponseEntity(RespCode.SUCCESS,result);
         }
     }
+    @RequestMapping("findComment")
+    public ResponseEntity findCommentAndReply(@SessionAttribute("userId")int userId,
+                                              @NotNull Integer commentId,
+                                              @NotNull Integer type){
+        CommentWholeModel comment;
+        switch (type){
+            case 1:
+                comment=commentMapper.selectSingleVideoComment(commentId);
+                comment.setType(1);
+                break;
+            case 2:
+                comment=commentMapper.selectSingleArticleComment(commentId);
+                comment.setType(2);
+                break;
+            case 3:
+                comment=commentMapper.selectSingleDynamicComment(commentId);
+                comment.setType(3);
+                break;
+                default:
+                    return new ResponseEntity(RespCode.ERROR_INPUT,"type输入错误");
+        }
+        if (comment==null)
+            return new ResponseEntity(RespCode.WARN_ENPTY,"内容不存在或已删除");
+
+        return new ResponseEntity(RespCode.SUCCESS,comment);
+    }
+
     @RequestMapping(value = "addComment")
     public ResponseEntity addComment(@SessionAttribute("userId")int userId,
                                      @Validated CommentModel comment,
@@ -161,7 +190,8 @@ public class CommentAndReplyController {
                     commentMapper.insertDynamicComment(comment);
                     commentMapper.addDynamicCommentNum(comment.getpId());
                     int replyedUserId=dynamicMapper.selectUserIdByDynamicId(comment.getpId());
-                    messageMapper.insertMessage(replyedUserId,3,comment.getpId(),comment.getContent());
+                    if(replyedUserId!=userId)
+                        messageMapper.insertMessage(replyedUserId,userId,3,comment.getpId(),comment.getContent());
                     break;
                 case 4://老师
                     commentMapper.insertTeacherComment(comment);
@@ -176,7 +206,7 @@ public class CommentAndReplyController {
         }
         return new ResponseEntity(RespCode.SUCCESS);
     }
-    @RequestMapping(value = "addCommentReply")
+    @RequestMapping(value = "addReply")
     public ResponseEntity addCommentReply(@SessionAttribute("userId")int userId,
                                      @Validated CommentReplyModel commentReply,
                                      @NotNull Integer type) {
@@ -192,21 +222,24 @@ public class CommentAndReplyController {
                     commentMapper.updateVideoCommentHasChild(1,commentReply.getpId());
                     if(commentReply.getReplyUserId()==0)
                         commentReply.setReplyUserId(commentReplyMapper.selectUserIdByVideoCommentId(commentReply.getpId()));
-                    messageMapper.insertMessage(commentReply.getReplyUserId(),1,commentReply.getpId(),commentReply.getContent());
+                    if(commentReply.getReplyUserId()!=userId)
+                        messageMapper.insertMessage(commentReply.getReplyUserId(),userId,1,commentReply.getpId(),commentReply.getContent());
                     break;
                 case 2://文章
                     commentReplyMapper.insertArticleCommentReply(commentReply);
                     commentMapper.updateArticleCommentHasChild(1,commentReply.getpId());
                     if(commentReply.getReplyUserId()==0)
                         commentReply.setReplyUserId(commentReplyMapper.selectUserIdByArticleCommentId(commentReply.getpId()));
-                    messageMapper.insertMessage(commentReply.getReplyUserId(),1,commentReply.getpId(),commentReply.getContent());
+                    if(commentReply.getReplyUserId()!=userId)
+                        messageMapper.insertMessage(commentReply.getReplyUserId(),userId,2,commentReply.getpId(),commentReply.getContent());
                     break;
                 case 3://动态
                     commentReplyMapper.insertDynamicCommentReply(commentReply);
                     commentMapper.updateDynamicCommentHasChild(1,commentReply.getpId());
                     if(commentReply.getReplyUserId()==0)
                         commentReply.setReplyUserId(commentReplyMapper.selectUserIdByDynamicCommentId(commentReply.getpId()));
-                    messageMapper.insertMessage(commentReply.getReplyUserId(),1,commentReply.getpId(),commentReply.getContent());
+                    if(commentReply.getReplyUserId()!=userId)
+                        messageMapper.insertMessage(commentReply.getReplyUserId(),userId,3,commentReply.getpId(),commentReply.getContent());
                     break;
                 default:
                     return new ResponseEntity(RespCode.ERROR_INPUT);
@@ -218,7 +251,7 @@ public class CommentAndReplyController {
         }
         return new ResponseEntity(RespCode.SUCCESS);
     }
-    @RequestMapping("delComment")
+    /*@RequestMapping("delComment")
     public ResponseEntity delComment(@SessionAttribute("userId")int userId,
                                           @NotNull Integer commentId,
                                           @NotNull Integer type){
@@ -274,7 +307,7 @@ public class CommentAndReplyController {
                 return new ResponseEntity(RespCode.ERROR_INPUT);
         }
         return new ResponseEntity(RespCode.SUCCESS);
-    }
+    }*/
 
 
 }

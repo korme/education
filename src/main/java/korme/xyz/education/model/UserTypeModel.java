@@ -2,7 +2,7 @@ package korme.xyz.education.model;
 
 public class UserTypeModel {
     //userName,nickName,kidgardenId,classId,userType,lastActiveTime
-    //todo: model
+    //
     private int kidgardenId;
     private int classId;
     private int userType;

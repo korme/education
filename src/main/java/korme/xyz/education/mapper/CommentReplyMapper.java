@@ -11,16 +11,16 @@ import java.util.Map;
 @Mapper
 @Component(value = "CommentReplyMapper")
 public interface CommentReplyMapper {
-    @Select("SELECT r.videoCommentReplyId,r.content,r.createTime,ur.nickName,u.headPortrait,u.nickName,u.userId,u.userType from video_comment_reply as r LEFT JOIN user as u ON r.userId=u.userId LEFT JOIN user as ur ON r.replyedUserId = ur.userId where r.videoCommentId=#{videoCommentId} and r.delState=0 and u.delState=0 ORDER BY r.createTime DESC")
+    @Select("SELECT r.videoCommentReplyId,r.content,r.createTime,ur.nickName as replyNickName,u.headPortrait,u.nickName,u.userId,u.userType from video_comment_reply as r LEFT JOIN user as u ON r.userId=u.userId LEFT JOIN user as ur ON r.replyedUserId = ur.userId where r.videoCommentId=#{videoCommentId} and r.delState=0 and u.delState=0 ORDER BY r.createTime DESC")
     List<Map<String,Object>> selectVideoCommentReply(@Param("videoCommentId")int videoCommentId);
 
-    @Select("SELECT r.articleCommentReplyId,r.content,r.createTime,ur.nickName,u.headPortrait,u.nickName,u.userId,u.userType from article_comment_reply as r LEFT JOIN user as u ON r.userId=u.userId LEFT JOIN user as ur ON r.replyedUserId = ur.userId where r.articleCommentId=#{articleCommentId} and r.delState=0 and u.delState=0 ORDER BY r.createTime DESC")
+    @Select("SELECT r.articleCommentReplyId,r.content,r.createTime,ur.nickName as replyNickName,u.headPortrait,u.nickName,u.userId,u.userType from article_comment_reply as r LEFT JOIN user as u ON r.userId=u.userId LEFT JOIN user as ur ON r.replyedUserId = ur.userId where r.articleCommentId=#{articleCommentId} and r.delState=0 and u.delState=0 ORDER BY r.createTime DESC")
     List<Map<String,Object>> selectArticleCommentReply(@Param("articleCommentId")int articleCommentId);
 
-    @Select("SELECT r.dynamicCommentReplyId,r.content,r.createTime,ur.nickName,u.headPortrait,u.nickName,u.userId,u.userType from dynamic_comment_reply as r LEFT JOIN user as u ON r.userId=u.userId LEFT JOIN user as ur ON r.replyedUserId = ur.userId where r.dynamicCommentId=#{dynamicCommentId} and r.delState=0 and u.delState=0 ORDER BY r.createTime DESC")
+    @Select("SELECT r.dynamicCommentReplyId,r.content,r.createTime,ur.nickName as replyNickName,u.headPortrait,u.nickName,u.userId,u.userType from dynamic_comment_reply as r LEFT JOIN user as u ON r.userId=u.userId LEFT JOIN user as ur ON r.replyedUserId = ur.userId where r.dynamicCommentId=#{dynamicCommentId} and r.delState=0 and u.delState=0 ORDER BY r.createTime DESC")
     List<Map<String,Object>> selectDynamicCommentReply(@Param("dynamicCommentId")int dynamicCommentId);
 
-    @Select("SELECT r.videoCommentReplyId,r.content,r.createTime,ur.nickName,u.headPortrait,u.nickName,u.userId,u.userType from video_comment_reply as r LEFT JOIN user as u ON r.userId=u.userId LEFT JOIN user as ur ON r.replyedUserId = ur.userId where r.videoCommentId=#{videoCommentId} and r.articleCommentReplyId<#{lastId} and r.delState=0 and u.delState=0 ORDER BY r.createTime DESC")
+    @Select("SELECT r.videoCommentReplyId,r.content,r.createTime,ur.nickName as replyNickName,u.headPortrait,u.nickName,u.userId,u.userType from video_comment_reply as r LEFT JOIN user as u ON r.userId=u.userId LEFT JOIN user as ur ON r.replyedUserId = ur.userId where r.videoCommentId=#{videoCommentId} and r.articleCommentReplyId<#{lastId} and r.delState=0 and u.delState=0 ORDER BY r.createTime DESC")
     List<Map<String,Object>> selectVideoCommentReplyBefore(@Param("videoCommentId")int videoCommentId,@Param("lastId")int lastId);
 
     @Select("SELECT r.articleCommentReplyId,r.content,r.createTime,ur.nickName,u.headPortrait,u.nickName,u.userId,u.userType from article_comment_reply as r LEFT JOIN user as u ON r.userId=u.userId LEFT JOIN user as ur ON r.replyedUserId = ur.userId where r.articleCommentId=#{articleCommentId} and r.videoCommentReplyId<#{lastId} and r.delState=0 and u.delState=0 ORDER BY r.createTime DESC")
@@ -28,7 +28,7 @@ public interface CommentReplyMapper {
 
     @Select("SELECT r.dynamicCommentReplyId,r.content,r.createTime,ur.nickName,u.headPortrait,u.nickName,u.userId,u.userType from dynamic_comment_reply as r LEFT JOIN user as u ON r.userId=u.userId LEFT JOIN user as ur ON r.replyedUserId = ur.userId where r.dynamicCommentId=#{dynamicCommentId} and r.dynamicCommentReplyId<#{lastId} and r.delState=0 and u.delState=0 ORDER BY r.createTime DESC")
     List<Map<String,Object>> selectDynamicCommentReplyBefore(@Param("dynamicCommentId")int dynamicCommentId,@Param("lastId")int lastId);
-    //todo:gaiming
+    //
     @Insert("INSERT INTO `education`.`video_comment_reply`( `videoCommentId`, `userId`, `replyedUserId`, `content`, `createTime`) VALUES (#{c.pId}, #{c.userId}, #{c.replyUserId}, #{c.content}, NOW())")
     void insertVideoCommentReply(@Param("c") CommentReplyModel c);
     @Insert("INSERT INTO `education`.`article_comment_reply`( `articleCommentId`, `userId`, `replyedUserId`, `content`, `createTime`) VALUES (#{c.pId}, #{c.userId}, #{c.replyUserId}, #{c.content}, NOW())")
@@ -58,9 +58,18 @@ public interface CommentReplyMapper {
     int selectDynamicCommentIdByReplyId(@Param("dynamicCommentReplyId")int dynamicCommentReplyId);
 
     @Select("select userId from video_comment WHERE videoCommentId=#{videoCommentId}")
-    int selectUserIdByVideoCommentId(@Param("videoCommentId")int videoCommentId);
+    Integer selectUserIdByVideoCommentId(@Param("videoCommentId")int videoCommentId);
     @Select("select userId from article_comment WHERE articleCommentId=#{articleCommentId}")
-    int selectUserIdByArticleCommentId(@Param("articleCommentId")int articleCommentId);
+    Integer selectUserIdByArticleCommentId(@Param("articleCommentId")int articleCommentId);
     @Select("select userId from dynamic_comment WHERE dynamicCommentId=#{dynamicCommentId}")
-    int selectUserIdByDynamicCommentId(@Param("dynamicCommentId")int dynamicCommentId);
+    Integer selectUserIdByDynamicCommentId(@Param("dynamicCommentId")int dynamicCommentId);
+
+    @Select("select userId from video_comment_reply WHERE videoCommentReplyId=#{videoCommentReplyId}")
+    Integer selectUserIdByVideoCommentReplyId(@Param("videoCommentReplyId")int videoCommentReplyId);
+    @Select("select userId from article_comment_reply WHERE articleCommentReplyId=#{articleCommentReplyId}")
+    Integer selectUserIdByArticleCommentReplyId(@Param("articleCommentReplyId")int articleCommentReplyId);
+    @Select("select userId from dynamic_comment_reply WHERE dynamicCommentReplyId=#{dynamicCommentReplyId}")
+    Integer selectUserIdByDynamicCommentReplyId(@Param("dynamicCommentReplyId")int dynamicCommentReplyId);
+
+
 }

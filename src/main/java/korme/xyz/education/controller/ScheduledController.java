@@ -15,7 +15,6 @@ public class ScheduledController {
     ConfigMapper configMapper;
     @Value("${deleteCycle}")
     int deleteCycle;
-    //todo: 无法启动
     @Scheduled(cron = "0 0 3 * * ?")
     public void dailyDeleteMessage(){
         Calendar now = Calendar.getInstance();

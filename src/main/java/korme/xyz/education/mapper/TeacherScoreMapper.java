@@ -12,8 +12,13 @@ public interface TeacherScoreMapper {
     /*
     *查询某条评分是否存在
     * */
-    @Select(" select 1 from teacher_score where teacherId=#{teacherId} and userId=#{userId} and DATE_FORMAT( createTime , '%Y%m' ) = DATE_FORMAT( NOW() , '%Y%m' ) limit 1")
+    @Select(" select count(*) from teacher_score where teacherId=#{teacherId} and userId=#{userId} and DATE_FORMAT( createTime , '%Y%m' ) = DATE_FORMAT( NOW() , '%Y%m' ) limit 1")
     int teacherScoreExist(@Param("teacherId")int teacherId,@Param("userId") int userId);
+    /*
+     *查询某条评分
+     * */
+    @Select("SELECT score from teacher_score where userId=#{userId} and teacherId=#{teacherId} LIMIT 1")
+    Integer selectTeacherScore(@Param("teacherId")int teacherId,@Param("userId") int userId);
     /*
     * 插入评分
     * */
@@ -28,12 +33,12 @@ public interface TeacherScoreMapper {
     /*
      *查询某家长班内老师
      * */
-    @Select("SELECT u.userId,u.nickName,u.headPortrait,u.score from user as u,(select u2.classId,u2.kidgardenId from user as u2 where userId=#{userId}) as a where u.classId=a.classId and u.kidgardenId=a.kidgardenId and userType=2 order by u.score DESC")
+    @Select("SELECT u.userId,u.nickName,u.headPortrait,u.score from user as u,(select u2.classId,u2.kidgardenId from user as u2 where userId=#{userId}) as a where u.classId=a.classId and u.kidgardenId=a.kidgardenId and userType=1 order by u.score DESC")
     List<ScoreModel> selectClassTeacher(@Param("userId")int userId);
 
     /*
-     *查询某家长校内老师
+     *查询某家长校内的老师
      * */
-    @Select("SELECT u.userId,u.nickName,u.headPortrait,u.score from user as u where kidgardenId=#{kidgardenId} and userType=2 order by u.score DESC")
+    @Select("SELECT u.userId,u.nickName,u.headPortrait,u.score from user as u where kidgardenId=#{kidgardenId} and userType=1 order by u.score DESC")
     List<ScoreModel> selectKidgardenTeacher(@Param("kidgardenId")int kidgardenId);
 }

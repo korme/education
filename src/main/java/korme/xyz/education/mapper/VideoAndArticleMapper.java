@@ -40,4 +40,5 @@ public interface VideoAndArticleMapper {
     * */
     @Select("select ar.articleId,ar.imgUrl,ar.articleTitle,ar.content,ar.createTime,ar.pointNum,ar.browseNum,ar.commentNum,ad.headPortrait,ad.nickName from article ar LEFT JOIN administrator ad on ar.creatorId=ad.id where ar.articleId=#{articleId} and ar.delState=0 ")
     ArticleModel selectSingleArticle(@Param("articleId")int articleId);
+
 }

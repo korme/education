@@ -31,12 +31,12 @@ public class NoticeController {
     @RequestMapping("countNotice")
     public ResponseEntity countNotice(@SessionAttribute("userId") Integer userId){
         //userName,nickName,kidgardenId,classId,userType,lastActiveTime
-        Map<String,Object> userType= userMapper.findUserType(userId);
+        UserTypeModel userType= userMapper.findUserTypeClea(userId);
         int result;
-        if((int)userType.get("userType")==4)
-            result=noticeMapper.countAllNotice((String)userType.get("lastActiveTime"));
+        if((int)userType.getUserType()==4)
+            result=noticeMapper.countAllNotice((String)userType.getLastActiveTime());
         else
-            result=noticeMapper.countNotice((int)userType.get("kidgardenId"),(String)userType.get("lastActiveTime"));
+            result=noticeMapper.countNotice((int)userType.getKidgardenId(),(String)userType.getLastActiveTime());
         return new ResponseEntity(RespCode.SUCCESS,result);
     }
 

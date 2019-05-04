@@ -110,7 +110,7 @@ public interface DynamicMapper {
     * 返回动态创建者Id
     * */
     @Select("select userId from dynamic where dynamicId=#{dynamicId}")
-    int selectUserIdByDynamicId(@Param("dynamicId")int dynamicId);
+    Integer selectUserIdByDynamicId(@Param("dynamicId")int dynamicId);
 
 
 
@@ -123,6 +123,12 @@ public interface DynamicMapper {
             "`transDynamicId`, `excerpt`, `content`, `date`) VALUES (#{d.userId},#{d.images}," +
             "#{d.kidgardenId},#{d.classId},#{d.transDynamicId},#{d.excerpt},#{d.content},#{d.date})")
     void insertDynamic(@Param("d")DynamicModel d);
+
+    /*
+    * 删除动态
+    * */
+    @Update("update dynamic set delstate=1 where dynamicId=#{dynamicId}")
+    void delDynamic(@Param("dynamicId")int dynamicId);
 
 
 

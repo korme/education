@@ -1,5 +1,6 @@
 package korme.xyz.education.mapper;
 
+import korme.xyz.education.model.UserLoginModel;
 import korme.xyz.education.model.UserTypeModel;
 import org.apache.ibatis.annotations.*;
 import org.springframework.stereotype.Component;
@@ -14,7 +15,7 @@ public interface UserMapper {
      * */
     @Select("select passWord,userId,headPortrait,nickName,overdueTime,userType from user " +
             "where userName=#{userName} and overdueTime>#{now}")
-    Map<String,Object> findPasswordByUserName(@Param("userName")String userName,@Param("now")String now);
+    UserLoginModel findPasswordByUserName(@Param("userName")String userName, @Param("now")String now);
 
 
     /*
@@ -22,6 +23,12 @@ public interface UserMapper {
      * */
     @Select("select passWord from user where userId=#{userId} and overdueTime>#{now}")
     String findPasswordByUserId(@Param("userId")int userId,@Param("now")String now);
+
+    /*
+     * 根据userName，返回未过期用户的密码
+     * */
+    @Select("select passWord from user where userName=#{userName} and overdueTime>#{now}")
+    String selectPasswordByUserName(@Param("userName")String userName,@Param("now")String now);
 
     /*
     * 根据userId，返回用户的基本类型信息
@@ -39,7 +46,6 @@ public interface UserMapper {
 
     /*
      * 根据userId，返回用户的详细信息
-     * todo:没写
      * */
     @Select("select userId from user where userName=#{userName}")
     Map<String,Object> findUserAll(@Param("userName")String userName);
@@ -50,6 +56,18 @@ public interface UserMapper {
      * */
     @Update("UPDATE user set `passWord`=#{passWord} where userId=#{userId}")
     void updatePassword(@Param("passWord")String passWord,@Param("userId")int userId);
+
+    /*
+     * 更新用户头像
+     * */
+    @Update("UPDATE user set `headPortrait`=#{headPortrait} where userId=#{userId}")
+    void updateHeadPortrait(@Param("headPortrait")String headPortrait,@Param("userId")int userId);
+
+    /*
+     * 更新用户头像
+     * */
+    @Update("UPDATE user set `nickName`=#{nickName} where userId=#{userId}")
+    void updateNickName(@Param("nickName")String nickName,@Param("userId")int userId);
 
     /*
     * 更新活跃时间

@@ -2,6 +2,7 @@ package korme.xyz.education.controller;
 
 import korme.xyz.education.common.response.RespCode;
 import korme.xyz.education.common.response.ResponseEntity;
+import korme.xyz.education.mapper.CommentMapper;
 import korme.xyz.education.mapper.TeacherScoreMapper;
 import korme.xyz.education.mapper.UserMapper;
 import korme.xyz.education.model.ScoreModel;
@@ -13,7 +14,9 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.SessionAttribute;
 
 import javax.validation.constraints.NotNull;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Validated
 @RestController
@@ -23,13 +26,15 @@ public class TeacherScoreController {
     TeacherScoreMapper teacherScoreMapper;
     @Autowired
     UserMapper userMapper;
+    @Autowired
+    CommentMapper commentMapper;
     /*
     * 找到班内老师列表
     * */
     @RequestMapping(value = "findClassTeacherList")
     public ResponseEntity findClassTeacherList(@SessionAttribute("userId") Integer userId){
         UserTypeModel userType=userMapper.findUserTypeClea(userId);
-        if(userType.getUserType()==1||userType.getUserType()==2)
+        if(userType.getUserType()!=3&&userType.getUserType()!=2)
             return new ResponseEntity(RespCode.ERROR_INPUT);
         List<ScoreModel> result=teacherScoreMapper.selectClassTeacher(userId);
         return new ResponseEntity(RespCode.SUCCESS,result);
@@ -53,18 +58,34 @@ public class TeacherScoreController {
                                        @NotNull Integer teacherId,
                                        @NotNull int star){
         if(star<1||star>5)
-            return new ResponseEntity(RespCode.ERROR_INPUT);
-        //todo:校验是否本班教室
+            return new ResponseEntity(RespCode.ERROR_INPUT,"评星数目错误");
         UserTypeModel userType=userMapper.findUserTypeClea(userId);
         UserTypeModel teacher=userMapper.findUserTypeClea(userId);
-        if(userType.getUserType()!=1||userType.getClassId()!=teacher.getClassId())
-            return new ResponseEntity(RespCode.ERROR_INPUT);
+        if(userType.getUserType()!=2||userType.getClassId()!=teacher.getClassId())
+            return new ResponseEntity(RespCode.ERROR_INPUT,"用户类型错误");
         int isScored=teacherScoreMapper.teacherScoreExist(teacherId,userId);
         if(isScored==1)
             return new ResponseEntity(RespCode.ERROR_INPUT,"您已经评价！");
         teacherScoreMapper.insertTeacherScore(teacherId,userId,star*10);
         teacherScoreMapper.updateScore(teacherId);
         return new ResponseEntity(RespCode.SUCCESS);
+    }
+    /*
+    * 获取给老师的评价
+    * */
+    @RequestMapping("findMyScore")
+    public ResponseEntity findMyScore(@SessionAttribute("userId") Integer userId,
+                                      @NotNull Integer teacherId){
+        Integer score=teacherScoreMapper.selectTeacherScore(teacherId,userId);
+        if(score==null)
+            score=0;
+        String comment=commentMapper.selectCommentToTeacher(userId,teacherId);
+        Map<String,String> result=new HashMap<>();
+        result.put("score",score.toString());
+        result.put("comment",comment);
+        return new ResponseEntity(RespCode.SUCCESS,result);
+
+
     }
 
 

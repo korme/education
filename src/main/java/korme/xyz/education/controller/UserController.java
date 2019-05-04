@@ -7,6 +7,7 @@ import java.util.Map;
 import korme.xyz.education.common.response.RespCode;
 import korme.xyz.education.common.response.ResponseEntity;
 import korme.xyz.education.mapper.UserMapper;
+import korme.xyz.education.model.UserLoginModel;
 import korme.xyz.education.service.MD5Utils.MD5Util;
 import korme.xyz.education.service.StringUtil.StringJudge;
 import korme.xyz.education.service.timeUtil.TimeUtils;
@@ -38,41 +39,64 @@ public class UserController {
     @GetMapping("/login")
     public ResponseEntity login(@NotBlank String userName, @NotBlank String passWord,
             HttpServletRequest request) throws Exception {
-        Map<String,Object> map=userMapper.findPasswordByUserName(userName,timeUtils.getNowTime());
-        String truePassWord=(String)map.get("passWord");
+        UserLoginModel map=userMapper.findPasswordByUserName(userName,timeUtils.getNowTime());
+        if(map==null)
+            return new ResponseEntity(RespCode.ERROR_USER,"用户不存在或已过期");
+        String truePassWord=(String)map.getPassWord();
         try{
             if(md5Util.getStringMD5(passWord).equals(truePassWord)){
-                int userId=(int)map.get("userId");
+                int userId=(int)map.getUserId();
                 HttpSession sessoin=request.getSession();
                 sessoin.setAttribute("userId",userId);
-                map.remove("passWord");
-                map.remove("userId");
-                map.put("sessionKey",new sun.misc.BASE64Encoder().encode(sessoin.getId().getBytes()));
+                map.setPassWord("");
+                map.setSessionKey(new sun.misc.BASE64Encoder().encode(sessoin.getId().getBytes()));
                 return new ResponseEntity(RespCode.SUCCESS,map);
             }
+            else
+                return new ResponseEntity(RespCode.ERROR_USER,"账号或密码错误");
         }
         catch (Exception e){
             return new ResponseEntity(RespCode.ERROR_INPUT);
         }
-        return new ResponseEntity(RespCode.ERROR_USER);
     }
     /*
     * 前台用户更改密码
     * */
     @GetMapping("/changePassWord")
     public ResponseEntity changePassWord(
-            @SessionAttribute("userId") Integer userId,
+            @NotBlank String userName,
             @NotEmpty String passWord, @NotEmpty String newpassWord)throws Exception{
         //校验新密码
         if (!StringJudge.stringIsPassword(newpassWord))
             return new ResponseEntity(RespCode.ERROR_INPUT,"新密码格式错误");
 
-        String truePassWord=userMapper.findPasswordByUserId(userId,timeUtils.getNowTime());
+        UserLoginModel user=userMapper.findPasswordByUserName(userName,timeUtils.getNowTime());
         //判断旧密码
-        if(!md5Util.getStringMD5(passWord).equals(truePassWord))
+        if(!md5Util.getStringMD5(passWord).equals(user.getPassWord()))
             return new ResponseEntity(RespCode.ERROR_INPUT,"旧密码输入错误！");
 
-        userMapper.updatePassword(newpassWord,userId);
+        userMapper.updatePassword(newpassWord,user.getUserId());
+        return new ResponseEntity(RespCode.SUCCESS);
+    }
+
+    /*
+     * 前台用户更改头像
+     * */
+    @GetMapping("/changeHeadPortrait")
+    public ResponseEntity changeHeadPortrait(@SessionAttribute("userId") Integer userId,
+                                         @NotEmpty String headPortrait)throws Exception{
+
+        userMapper.updateHeadPortrait(headPortrait,userId);
+        return new ResponseEntity(RespCode.SUCCESS);
+    }
+    /*
+     * 前台用户更改昵称
+     * */
+    @GetMapping("/changeNickName")
+    public ResponseEntity changeNickName(@SessionAttribute("userId") Integer userId,
+                                         @NotEmpty String nickName)throws Exception{
+
+        userMapper.updateNickName(nickName,userId);
         return new ResponseEntity(RespCode.SUCCESS);
     }
 
