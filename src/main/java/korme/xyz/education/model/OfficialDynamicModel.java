@@ -19,9 +19,19 @@ public class OfficialDynamicModel {
     private String date;
     private String delState;
     private DynamicOrdinaryModel child;
+    private int hasChild;
 
 
     public OfficialDynamicModel() {
+        this.hasChild=0;
+    }
+
+    public int getHasChild() {
+        return hasChild;
+    }
+
+    public void setHasChild(int hasChild) {
+        this.hasChild = hasChild;
     }
 
     public String getHeadPortrait() {

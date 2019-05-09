@@ -2,10 +2,10 @@ package korme.xyz.education.model;
 
 public class CommentWholeModel {
     private int pId;
-    private int content;
     private int userId;
     private String headPortrait;
     private String nickName;
+    private String content;
     private String createTime;
     private int type;
     private int userType;
@@ -42,11 +42,11 @@ public class CommentWholeModel {
         this.pId = pId;
     }
 
-    public int getContent() {
+    public String getContent() {
         return content;
     }
 
-    public void setContent(int content) {
+    public void setContent(String content) {
         this.content = content;
     }
 

@@ -11,6 +11,7 @@ import korme.xyz.education.model.receiverModel.DynamicModel;
 import korme.xyz.education.service.ALiYunOssUtil.ALiYunOssUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -49,9 +50,9 @@ public class DynamicController {
             case 2://本园园长
                 return new ResponseEntity(RespCode.SUCCESS,allMyKindergartenDynamicUp(userId));
             case 3://官方
-                return new ResponseEntity(RespCode.SUCCESS,allOfficialDynamicUp());
+                return new ResponseEntity(RespCode.SUCCESS,allOfficialDynamicUp(userId));
             case 4://所有园长
-                return new ResponseEntity(RespCode.SUCCESS,allDynamicUp());
+                return new ResponseEntity(RespCode.SUCCESS,allDynamicUp(userId));
         }
         return new ResponseEntity(RespCode.ERROR_INPUT);
     }
@@ -77,6 +78,7 @@ public class DynamicController {
     /*
      * 插入动态
      * */
+    @Transactional
     @GetMapping("addDynamic")
     public ResponseEntity addDynamic(@Validated DynamicModel dynamicModel,
                                      @SessionAttribute("userId") Integer userId) throws UnsupportedEncodingException, ClientException {
@@ -84,14 +86,25 @@ public class DynamicController {
         dynamicModel.setUserId(userId);
         dynamicModel.setClassId((int)userTypeMap.get("classId"));
         dynamicModel.setKidgardenId((int)userTypeMap.get("kidgardenId"));
-        if(dynamicModel.getImages().isEmpty())
+        int isEmpty=0;
+        if(dynamicModel.getImages() == null ||dynamicModel.getImages().isEmpty())
             dynamicModel.setImages("[]");
-        List<String> tempString=new ArrayList<>();
-        tempString.add(dynamicModel.getContent());
-        tempString.add(dynamicModel.getExcerpt());
-        tempString=oss.textScan(tempString);
-        dynamicModel.setContent(tempString.get(0));
-        dynamicModel.setExcerpt(tempString.get(1));
+        if(dynamicModel.getContent() == null ||dynamicModel.getContent().isEmpty()){
+            dynamicModel.setContent("  ");
+            isEmpty=1;
+        }
+
+        if(dynamicModel.getExcerpt() == null ||dynamicModel.getExcerpt().isEmpty()){
+            dynamicModel.setExcerpt("  ");
+        }
+        if(isEmpty==0){
+            List<String> tempString=new ArrayList<>();
+            tempString.add(dynamicModel.getContent());
+            tempString.add(dynamicModel.getExcerpt());
+            tempString=oss.textScan(tempString);
+            dynamicModel.setContent(tempString.get(0));
+            dynamicModel.setExcerpt(tempString.get(1));
+        }
         dynamicMapper.insertDynamic(dynamicModel);
         return new ResponseEntity(RespCode.SUCCESS);
     }
@@ -101,11 +114,11 @@ public class DynamicController {
     @GetMapping("dynamic")
     public ResponseEntity dynamic(@NotNull Integer dynamicId,
                                   @SessionAttribute("userId") Integer userId){
-        OfficialDynamicModel result=dynamicMapper.selectOffDynamicById(dynamicId);
+        OfficialDynamicModel result=dynamicMapper.selectOffDynamicById(userId,dynamicId);
         if(result==null)
             return new ResponseEntity(RespCode.WARN_ENPTY);
         if(result.getTransDynamicId()!=0)
-            result.setChild(dynamicMapper.selectDynamicById(result.getTransDynamicId()));
+            result.setChild(dynamicMapper.selectDynamicById(userId,result.getTransDynamicId()));
         return new ResponseEntity(RespCode.SUCCESS,result);
     }
 ///////////////////////////////////////////本类调用方法/////////////////////////////////////////////////////////
@@ -115,7 +128,7 @@ public class DynamicController {
     public ResponseEntity allClassDynamicUp(Integer userId){
         Map<String,Object> userType=userMapper.findUserType(userId);
         PageHelper.startPage(1,pagesize);
-        List<Map<String,Object>> result=dynamicMapper.selectLimitClassAll((Integer) userType.get("userType"),
+        List<Map<String,Object>> result=dynamicMapper.selectLimitClassAll(userId,(Integer) userType.get("userType"),
                 (Integer)userType.get("kidgardenId"),(Integer)userType.get("classId"));
         return new ResponseEntity(RespCode.SUCCESS,result);
     }
@@ -128,7 +141,7 @@ public class DynamicController {
 
         Map<String,Object> userType=userMapper.findUserType(userId);
         PageHelper.startPage(page,pagesize);
-        List<Map<String,Object>> result=dynamicMapper.selectLimitClassBeforeTime((Integer) userType.get("userType"),
+        List<Map<String,Object>> result=dynamicMapper.selectLimitClassBeforeTime(userId,(Integer) userType.get("userType"),
                 (Integer)userType.get("kidgardenId"),(Integer)userType.get("classId"),lastDynamicId);
 
         return new ResponseEntity(RespCode.SUCCESS,result);
@@ -143,7 +156,7 @@ public class DynamicController {
         Map<String,Object> userType=userMapper.findUserType(userId);
         PageHelper.startPage(page,pagesize);
         List<Map<String,Object>> result=
-                dynamicMapper.selectPrincipalBeforeTime((Integer)userType.get("kidgardenId"), lastDynamicId);
+                dynamicMapper.selectPrincipalBeforeTime(userId,(Integer)userType.get("kidgardenId"), lastDynamicId);
         return new ResponseEntity(RespCode.SUCCESS,result);
     }
     /*
@@ -153,7 +166,7 @@ public class DynamicController {
 
         Map<String,Object> userType=userMapper.findUserType(userId);
         PageHelper.startPage(1,pagesize);
-        List<Map<String,Object>> result=dynamicMapper.selectPrincipalAll((Integer)userType.get("kidgardenId"));
+        List<Map<String,Object>> result=dynamicMapper.selectPrincipalAll(userId,(Integer)userType.get("kidgardenId"));
 
         return new ResponseEntity(RespCode.SUCCESS,result);
     }
@@ -165,15 +178,15 @@ public class DynamicController {
                                          int page){
         PageHelper.startPage(page,pagesize);
         List<Map<String,Object>> result=
-                dynamicMapper.selectAllPrincipalBeforeTime(lastDynamicId);
+                dynamicMapper.selectAllPrincipalBeforeTime(userId,lastDynamicId);
         return new ResponseEntity(RespCode.SUCCESS,result);
     }
     /*
      * 全部所有幼儿园长动态
      * */
-    public ResponseEntity allDynamicUp(){
+    public ResponseEntity allDynamicUp(int userId){
         PageHelper.startPage(1,pagesize);
-        List<Map<String,Object>> result=dynamicMapper.selectAllPrincipalAll();
+        List<Map<String,Object>> result=dynamicMapper.selectAllPrincipalAll(userId);
         return new ResponseEntity(RespCode.SUCCESS,result);
     }
 
@@ -185,10 +198,10 @@ public class DynamicController {
                                          int page){
         PageHelper.startPage(page,pagesize);
         List<OfficialDynamicModel> result=
-                dynamicMapper.selectOfficialBeforeTime(lastDynamicId);
+                dynamicMapper.selectOfficialBeforeTime(userId,lastDynamicId);
         for(OfficialDynamicModel i:result){
             if(i.getTransDynamicId()!=0){
-                i.setChild(dynamicMapper.selectDynamicById(i.getTransDynamicId()));
+                i.setChild(dynamicMapper.selectDynamicById(userId,i.getTransDynamicId()));
             }
         }
 
@@ -197,12 +210,13 @@ public class DynamicController {
     /*
      * 全部官方动态
      * */
-    public ResponseEntity allOfficialDynamicUp(){
+    public ResponseEntity allOfficialDynamicUp(int userId){
         PageHelper.startPage(1,pagesize);
-        List<OfficialDynamicModel> result=dynamicMapper.selectOfficialAll();
+        List<OfficialDynamicModel> result=dynamicMapper.selectOfficialAll(userId);
         for(OfficialDynamicModel i:result){
             if(i.getTransDynamicId()!=0){
-                i.setChild(dynamicMapper.selectDynamicById(i.getTransDynamicId()));
+                i.setChild(dynamicMapper.selectDynamicById(userId,i.getTransDynamicId()));
+                i.setHasChild(1);
             }
         }
         return new ResponseEntity(RespCode.SUCCESS,result);

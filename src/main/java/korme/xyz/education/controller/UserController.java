@@ -12,6 +12,7 @@ import korme.xyz.education.service.MD5Utils.MD5Util;
 import korme.xyz.education.service.StringUtil.StringJudge;
 import korme.xyz.education.service.timeUtil.TimeUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import sun.security.provider.Sun;
@@ -62,26 +63,28 @@ public class UserController {
     /*
     * 前台用户更改密码
     * */
+    @Transactional
     @GetMapping("/changePassWord")
     public ResponseEntity changePassWord(
             @NotBlank String userName,
             @NotEmpty String passWord, @NotEmpty String newpassWord)throws Exception{
         //校验新密码
-        if (!StringJudge.stringIsPassword(newpassWord))
-            return new ResponseEntity(RespCode.ERROR_INPUT,"新密码格式错误");
+        /*if (!StringJudge.stringIsPassword(newpassWord))
+            return new ResponseEntity(RespCode.ERROR_INPUT,"新密码格式错误");*/
 
         UserLoginModel user=userMapper.findPasswordByUserName(userName,timeUtils.getNowTime());
         //判断旧密码
         if(!md5Util.getStringMD5(passWord).equals(user.getPassWord()))
             return new ResponseEntity(RespCode.ERROR_INPUT,"旧密码输入错误！");
 
-        userMapper.updatePassword(newpassWord,user.getUserId());
+        userMapper.updatePassword(md5Util.getStringMD5(newpassWord),user.getUserId());
         return new ResponseEntity(RespCode.SUCCESS);
     }
 
     /*
      * 前台用户更改头像
      * */
+    @Transactional
     @GetMapping("/changeHeadPortrait")
     public ResponseEntity changeHeadPortrait(@SessionAttribute("userId") Integer userId,
                                          @NotEmpty String headPortrait)throws Exception{
@@ -92,6 +95,7 @@ public class UserController {
     /*
      * 前台用户更改昵称
      * */
+    @Transactional
     @GetMapping("/changeNickName")
     public ResponseEntity changeNickName(@SessionAttribute("userId") Integer userId,
                                          @NotEmpty String nickName)throws Exception{

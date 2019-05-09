@@ -14,6 +14,7 @@ import korme.xyz.education.service.ALiYunOssUtil.ALiYunOssUtil;
 import org.hibernate.validator.constraints.Range;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -158,15 +159,16 @@ public class CommentAndReplyController {
                 comment=commentMapper.selectSingleDynamicComment(commentId);
                 comment.setType(3);
                 break;
-                default:
-                    return new ResponseEntity(RespCode.ERROR_INPUT,"type输入错误");
+            default:
+                return new ResponseEntity(RespCode.ERROR_INPUT,"type输入错误");
         }
         if (comment==null)
             return new ResponseEntity(RespCode.WARN_ENPTY,"内容不存在或已删除");
 
         return new ResponseEntity(RespCode.SUCCESS,comment);
-    }
 
+    }
+    @Transactional
     @RequestMapping(value = "addComment")
     public ResponseEntity addComment(@SessionAttribute("userId")int userId,
                                      @Validated CommentModel comment,
@@ -206,6 +208,7 @@ public class CommentAndReplyController {
         }
         return new ResponseEntity(RespCode.SUCCESS);
     }
+    @Transactional
     @RequestMapping(value = "addReply")
     public ResponseEntity addCommentReply(@SessionAttribute("userId")int userId,
                                      @Validated CommentReplyModel commentReply,

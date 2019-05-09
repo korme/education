@@ -18,8 +18,8 @@ public class DynamicModel {
     private Integer classId;
     @NotNull private Integer transDynamicId;
     private Integer viewStatus;
-    @NotBlank private String content;
-    @NotBlank private String excerpt;
+    private String content;
+    private String excerpt;
     private String date;
     private String Images;
 

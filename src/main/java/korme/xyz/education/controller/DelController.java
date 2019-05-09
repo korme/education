@@ -9,6 +9,7 @@ import korme.xyz.education.mapper.UserMapper;
 import korme.xyz.education.model.UserTypeModel;
 import korme.xyz.education.model.receiverModel.CommentModel;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -26,6 +27,7 @@ public class DelController {
     DynamicMapper dynamicMapper;
     @Autowired
     CommentMapper commentMapper;
+    @Transactional
     @RequestMapping("del")
     public ResponseEntity del(@SessionAttribute("userId")int userId,
                               @NotNull Integer type,//分类Type 1-video,2-article,3-dynamic

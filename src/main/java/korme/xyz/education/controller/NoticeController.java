@@ -9,6 +9,7 @@ import korme.xyz.education.model.receiverModel.NoticeModel;
 import korme.xyz.education.model.receiverModel.NoticeWholeModel;
 import korme.xyz.education.service.timeUtil.TimeUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -65,13 +66,15 @@ public class NoticeController {
 
         return new ResponseEntity(RespCode.SUCCESS,result);
     }
-
+    @Transactional
     @RequestMapping("addNotice")
     public ResponseEntity addNotice(@SessionAttribute("userId") Integer userId,
                                       @Validated NoticeModel notice){
         //userName,nickName,kidgardenId,classId,userType,lastActiveTime
         UserTypeModel userType= userMapper.findUserTypeClea(userId);
-        if(userType.getUserType()==4){
+        if(userType.getUserType()==3){
+            notice.setKidgardenId(userType.getKidgardenId());
+            notice.setUserId(userId);
             noticeMapper.insertNotice(notice);
             return new ResponseEntity(RespCode.SUCCESS);
         }

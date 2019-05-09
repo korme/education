@@ -9,6 +9,15 @@ public class MainPageModel {
     private String title;
     private String coverUrl;
     private String createTime;
+    private int isPointed;
+
+    public int getIsPointed() {
+        return isPointed;
+    }
+
+    public void setIsPointed(int isPointed) {
+        this.isPointed = isPointed;
+    }
 
     public MainPageModel() {
         this.type=1;

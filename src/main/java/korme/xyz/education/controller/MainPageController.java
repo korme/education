@@ -39,18 +39,28 @@ public class MainPageController {
                                    @NotNull Integer id){
         List<MainPageModel> result;
         if(id==0){
+            result = vaMapper.selectMainPageUp(userId);
+            if(result.isEmpty())
+                return new ResponseEntity(RespCode.SUCCESS,result);
+
+            while(result.size()!=0){
+                if(result.get(result.size()-1).getType()==2)//2-article
+                    result.remove(result.size()-1);
+                else
+                    return new ResponseEntity(RespCode.SUCCESS,result);
+            }
             PageHelper.startPage(1,pagesize);
-            result = vaMapper.selectNewVideo();
+            result = vaMapper.selectNewVideo(userId);
         }
 
         else{
             PageHelper.startPage(1,pagesize);
-            result=vaMapper.selectVideoBeforeId(id);
+            result=vaMapper.selectVideoBeforeId(userId,id);
         }
         if(result.isEmpty()||result.size()<2)
             return new ResponseEntity(RespCode.SUCCESS,result);
         List<MainPageModel> temp=
-                vaMapper.selectArticleBetweenTime(result.get(0).getCreateTime(),result.get(result.size()-1).getCreateTime());
+                vaMapper.selectArticleBetweenTime(userId,result.get(0).getCreateTime(),result.get(result.size()-1).getCreateTime());
         if(!temp.isEmpty()){
             for(MainPageModel i:temp)
                 i.setType(2);//1:video,2:article
@@ -64,17 +74,17 @@ public class MainPageController {
                                             @NotNull Integer id,
                                             @NotNull Integer type){
         if(type==1){//video
-            VideoModel result=vaMapper.selectSingleVideo(id);
+            VideoModel result=vaMapper.selectSingleVideo(userId,id);
             if (result==null)
                 return new ResponseEntity(RespCode.ERROR_INPUT,"视频不存在！");
-            String url=oss.getDownloadUrl(result.getVideoBucket(),result.getVideoKey(),new Date(new Date().getTime() + 60 * 1000));
+            String url=oss.getDownloadUrl(result.getVideoBucket(),result.getVideoKey(),new Date(new Date().getTime() + 60 * 1000* 10));
             if(url==null)
                 return new ResponseEntity(RespCode.ERROR_INPUT,"视频不存在！");
             result.setVideoUrl(url);
             return new ResponseEntity(RespCode.SUCCESS,result);
         }
         else if(type==2){//article
-            ArticleModel result=vaMapper.selectSingleArticle(id);
+            ArticleModel result=vaMapper.selectSingleArticle(userId,id);
             if(result==null)
                 return new ResponseEntity(RespCode.ERROR_INPUT,"文章不存在！");
             return new ResponseEntity(RespCode.SUCCESS,result);

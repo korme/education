@@ -4,6 +4,7 @@ import korme.xyz.education.common.response.RespCode;
 import korme.xyz.education.common.response.ResponseEntity;
 import korme.xyz.education.mapper.PointMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.SessionAttribute;
@@ -14,6 +15,7 @@ import javax.validation.constraints.NotNull;
 public class PointerController {
     @Autowired
     PointMapper pointMapper;
+    @Transactional
     @RequestMapping("/point")
     public ResponseEntity point(@SessionAttribute("userId") Integer userId,
                                 @NotNull Integer type,
@@ -39,6 +41,7 @@ public class PointerController {
         }
         return new ResponseEntity(RespCode.SUCCESS);
     }
+    @Transactional
     @RequestMapping("/delPoint")
     public ResponseEntity delPoint(@SessionAttribute("userId") Integer userId,
                                 @NotNull Integer type,
