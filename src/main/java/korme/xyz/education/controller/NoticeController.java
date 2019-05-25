@@ -83,6 +83,27 @@ public class NoticeController {
 
 
     }
+    @RequestMapping("delNotice")
+    public ResponseEntity delNotice(@SessionAttribute("userId") Integer userId,
+                                    @Validated Integer noticeId){
+        //userName,nickName,kidgardenId,classId,userType,lastActiveTime
+        UserTypeModel userType= userMapper.findUserTypeClea(userId);
+        if(userType.getUserType()==4){
+            int num=noticeMapper.delMyNotice(noticeId,userId);
+            if(num==0)
+                return new ResponseEntity(RespCode.WRONG,"内容不存在");
+            return new ResponseEntity(RespCode.SUCCESS);
+        }
+        else{
+            int num=noticeMapper.delMyNotice(noticeId,userId);
+            if(num==0){
+                return new ResponseEntity(RespCode.WRONG,"内容不存在或限权不足");
+            }
+            else
+                return new ResponseEntity(RespCode.SUCCESS);
+        }
+    }
+
 
 
 

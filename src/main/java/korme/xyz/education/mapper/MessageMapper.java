@@ -12,7 +12,7 @@ public interface MessageMapper {
     /*
     * message计数
     * */
-    @Select("select count(*) FROM message where userId=1 and isRead=0")
+    @Select("select count(*) FROM message where userId=#{userId} and isRead=0")
     int countMessage(@Param("userId")int userId);
     /*
     * 返回所有message

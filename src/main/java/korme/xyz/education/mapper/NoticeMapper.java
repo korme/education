@@ -2,10 +2,7 @@ package korme.xyz.education.mapper;
 
 import korme.xyz.education.model.receiverModel.NoticeModel;
 import korme.xyz.education.model.receiverModel.NoticeWholeModel;
-import org.apache.ibatis.annotations.Insert;
-import org.apache.ibatis.annotations.Mapper;
-import org.apache.ibatis.annotations.Param;
-import org.apache.ibatis.annotations.Select;
+import org.apache.ibatis.annotations.*;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -32,6 +29,12 @@ public interface NoticeMapper {
 
     @Select("SELECT COUNT(*) from notice where createTime>#{activeTime}")
     int countAllNotice(@Param("activeTime")String activeTime);
+
+    @Update("update notice set delState=1,delTime=NOW() where noticeId=#{noticeId} and creatorId=#{creatorId}")
+    int delMyNotice(@Param("noticeId")int noticeId,@Param("creatorId")int creatorId);
+
+    @Update("update notice set delState=1,delTime=NOW() where noticeId=#{noticeId}")
+    int delRandomNotice(@Param("noticeId")int noticeId);
 
 
 }

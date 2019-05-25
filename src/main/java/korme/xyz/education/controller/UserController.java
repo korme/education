@@ -6,6 +6,7 @@ import java.util.Map;
 
 import korme.xyz.education.common.response.RespCode;
 import korme.xyz.education.common.response.ResponseEntity;
+import korme.xyz.education.mapper.FeedbackMapper;
 import korme.xyz.education.mapper.UserMapper;
 import korme.xyz.education.model.UserLoginModel;
 import korme.xyz.education.service.MD5Utils.MD5Util;
@@ -34,18 +35,21 @@ public class UserController {
     MD5Util md5Util;
     @Autowired
     TimeUtils timeUtils;
+    @Autowired
+    FeedbackMapper feedbackMapper;
     /*
     * 登录接口
     * */
     @GetMapping("/login")
     public ResponseEntity login(@NotBlank String userName, @NotBlank String passWord,
             HttpServletRequest request) throws Exception {
+        userName=userName.replace(" ","");
         UserLoginModel map=userMapper.findPasswordByUserName(userName,timeUtils.getNowTime());
         if(map==null)
             return new ResponseEntity(RespCode.ERROR_USER,"用户不存在或已过期");
         String truePassWord=(String)map.getPassWord();
         try{
-            if(md5Util.getStringMD5(passWord).equals(truePassWord)){
+            if(md5Util.getStringMD5(passWord).equalsIgnoreCase(truePassWord)){
                 int userId=(int)map.getUserId();
                 HttpSession sessoin=request.getSession();
                 sessoin.setAttribute("userId",userId);
@@ -67,7 +71,7 @@ public class UserController {
     @GetMapping("/changePassWord")
     public ResponseEntity changePassWord(
             @NotBlank String userName,
-            @NotEmpty String passWord, @NotEmpty String newpassWord)throws Exception{
+            @NotBlank String passWord, @NotBlank String newpassWord)throws Exception{
         //校验新密码
         /*if (!StringJudge.stringIsPassword(newpassWord))
             return new ResponseEntity(RespCode.ERROR_INPUT,"新密码格式错误");*/
@@ -87,7 +91,7 @@ public class UserController {
     @Transactional
     @GetMapping("/changeHeadPortrait")
     public ResponseEntity changeHeadPortrait(@SessionAttribute("userId") Integer userId,
-                                         @NotEmpty String headPortrait)throws Exception{
+                                         @NotBlank String headPortrait)throws Exception{
 
         userMapper.updateHeadPortrait(headPortrait,userId);
         return new ResponseEntity(RespCode.SUCCESS);
@@ -98,7 +102,7 @@ public class UserController {
     @Transactional
     @GetMapping("/changeNickName")
     public ResponseEntity changeNickName(@SessionAttribute("userId") Integer userId,
-                                         @NotEmpty String nickName)throws Exception{
+                                         @NotBlank String nickName)throws Exception{
 
         userMapper.updateNickName(nickName,userId);
         return new ResponseEntity(RespCode.SUCCESS);
@@ -108,6 +112,12 @@ public class UserController {
     @GetMapping("/loginError")
     public ResponseEntity loginError() throws ParseException {
         return new ResponseEntity(RespCode.ERROR_SESSION);
+    }
+    @GetMapping("/feedback")
+    public ResponseEntity feedback(@SessionAttribute("userId") Integer userId,
+                                   @NotBlank String feedbackContent){
+        feedbackMapper.insertFeedback(feedbackContent,userId);
+        return new ResponseEntity(RespCode.SUCCESS);
     }
 
 }

@@ -89,6 +89,18 @@ public class TeacherScoreController {
 
 
     }
+    /*
+     * 是否已经评分
+     * */
+    @RequestMapping("isScore")
+    public ResponseEntity isScore(@SessionAttribute("userId") Integer userId,
+                                      @NotNull Integer teacherId){
+        int isScored=teacherScoreMapper.teacherScoreExist(teacherId,userId);
+        return new ResponseEntity(RespCode.SUCCESS,isScored);
+
+
+    }
+
 
 
 
