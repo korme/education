@@ -13,18 +13,6 @@ import java.util.Map;
 @Mapper
 @Component(value = "DynamicMapper")
 public interface DynamicMapper {
-    /*
-    * 返回班级动态，时间倒序
-    * */
-    @SelectProvider(type = DynamicProvider.class,method = "findClassDynamicUp")
-    List<Map<String,Object>> selectLimitClassAll(Integer userId,Integer userType, Integer kidgardenId, Integer classId);
-
-    /*
-     * 返回班级动态,时间倒序
-     * 条件：动态发布时间小于Date
-     * */
-    @SelectProvider(type = DynamicProvider.class,method = "findClassDynamicDown")
-    List<Map<String,Object>> selectLimitClassBeforeTime(Integer userId,Integer userType,Integer kidgardenId,Integer classId,int dynamicId);
 
     /*
      * 返回班级动态,时间倒序
@@ -129,6 +117,20 @@ public interface DynamicMapper {
     * */
     @Update("update dynamic set delstate=1 where dynamicId=#{dynamicId}")
     void delDynamic(@Param("dynamicId")int dynamicId);
+
+    /*
+     * 返回班级动态，时间倒序
+     * */
+    @SelectProvider(type = DynamicProvider.class,method = "findClassDynamicUp")
+    List<Map<String,Object>> selectLimitClassAll(Integer userId,Integer userType, Integer kidgardenId, Integer classId);
+
+    /*
+     * 返回班级动态,时间倒序
+     * 条件：动态发布时间小于Date
+     * */
+    @SelectProvider(type = DynamicProvider.class,method = "findClassDynamicDown")
+    List<Map<String,Object>> selectLimitClassBeforeTime(Integer userId,Integer userType,Integer kidgardenId,Integer classId,int dynamicId);
+
 
 
 

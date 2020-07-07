@@ -177,7 +177,13 @@ public class CommentAndReplyController {
             comment.setUserId(userId);
             List<String> tempString=new ArrayList<>();
             tempString.add(comment.getContent());
-            tempString=oss.textScan(tempString);
+            try{
+                tempString=oss.textScan(tempString);
+            }
+            catch (Exception e){
+                return new ResponseEntity(RespCode.WARN_INPUT);
+            }
+
             comment.setContent(tempString.get(0));
             switch (type) {
                 case 1://视频
@@ -217,7 +223,12 @@ public class CommentAndReplyController {
             commentReply.setUserId(userId);
             List<String> tempString=new ArrayList<>();
             tempString.add(commentReply.getContent());
-            tempString=oss.textScan(tempString);
+            try{
+                tempString=oss.textScan(tempString);
+            }
+            catch (Exception e){
+                return new ResponseEntity(RespCode.WARN_INPUT);
+            }
             commentReply.setContent(tempString.get(0));
             switch (type) {
                 case 1://视频

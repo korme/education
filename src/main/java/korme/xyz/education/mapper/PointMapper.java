@@ -15,13 +15,13 @@ public interface PointMapper {
     /*
     * video点赞
     * */
-    @Update("update video SET pointNum=pointNum+1 where videoId=#{videoId}")
-    void videoPointNumSelfAdd(@Param("videoId")int videoId);
+    @Update("update mainpage SET pointNum=pointNum+1 where videoOrArticleId=#{videoOrArticleId} and type=1")
+    void videoPointNumSelfAdd(@Param("videoOrArticleId")int videoOrArticleId);
     /*
      * article点赞
      * */
-    @Update("update article SET pointNum=pointNum+1 where articleId=#{articleId}")
-    void articlePointNumSelfAdd(@Param("articleId")int articleId);
+    @Update("update mainpage SET pointNum=pointNum+1 where videoOrArticleId=#{videoOrArticleId} and type=2")
+    void articlePointNumSelfAdd(@Param("videoOrArticleId")int videoOrArticleId);
     /*
      * dynamic点赞
      * */
@@ -43,13 +43,13 @@ public interface PointMapper {
     /*
      * video取消点赞
      * */
-    @Update("update video SET pointNum=pointNum-1 where videoId=#{videoId}")
-    void videoPointNumSelfDec(@Param("videoId")int videoId);
+    @Update("update mainpage SET pointNum=pointNum-1 where videoOrArticleId=#{videoOrArticleId} and type=1")
+    void videoPointNumSelfDec(@Param("videoOrArticleId")int videoOrArticleId);
     /*
      * article取消点赞
      * */
-    @Update("update article SET pointNum=pointNum-1 where articleId=#{articleId}")
-    void articlePointNumSelfDec(@Param("articleId")int articleId);
+    @Update("update mainpage SET pointNum=pointNum-1 where videoOrArticleId=#{videoOrArticleId} and type=2")
+    void articlePointNumSelfDec(@Param("videoOrArticleId")int videoOrArticleId);
     /*
      * dynamic取消点赞
      * */

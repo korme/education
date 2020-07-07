@@ -101,7 +101,12 @@ public class DynamicController {
             List<String> tempString=new ArrayList<>();
             tempString.add(dynamicModel.getContent());
             tempString.add(dynamicModel.getExcerpt());
-            tempString=oss.textScan(tempString);
+            try{
+                tempString=oss.textScan(tempString);
+            }
+            catch (Exception e){
+                return new ResponseEntity(RespCode.WARN_INPUT);
+            }
             dynamicModel.setContent(tempString.get(0));
             dynamicModel.setExcerpt(tempString.get(1));
         }

@@ -60,6 +60,7 @@ public class ExcelUtilMPL implements ExcelUtil{
             userArray[5]=u.getCurrentBalance()==null?null:u.getCurrentBalance().toString();
             userArray[6]=u.getRemark();
             userArray[7]=u.getApplyTime();
+
             for(int iArray=0; iArray<userArray.length; iArray++) {
                 row.createCell(iArray).setCellValue(userArray[iArray]);
             }
@@ -89,6 +90,7 @@ public class ExcelUtilMPL implements ExcelUtil{
             baos.close();
         }catch (Exception e){
             e.printStackTrace();
+            return 1;
         }
 
         return 0;

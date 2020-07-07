@@ -68,4 +68,13 @@ public class PointerController {
         return new ResponseEntity(RespCode.SUCCESS);
     }
 
+    @RequestMapping("/isPoint")
+    public ResponseEntity isPoint(@SessionAttribute("userId") Integer userId,
+                                   @NotNull Integer type,
+                                   @NotNull Integer id) {
+        Integer ispointed = pointMapper.pointIsExist(userId, id, type);
+        return new ResponseEntity(RespCode.SUCCESS,ispointed);
+    }
+
+
 }

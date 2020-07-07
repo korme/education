@@ -16,6 +16,8 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.SessionAttribute;
 
 import javax.validation.constraints.NotNull;
+import java.util.Map;
+
 @Validated
 @RestController
 public class DelController {
@@ -38,45 +40,48 @@ public class DelController {
             case 1:
                 switch (types){
                     case 1:
+                        Map<String,Integer> maps=commentReplyMapper.selectUserIdAndIdByVideoCommentId(id);
                         if(userType.getUserType()!=4){
-                            Integer s=commentReplyMapper.selectUserIdByVideoCommentId(id);
+                            Integer s=maps.get("userId");
                             if(s==null||s!=userId)
                                 return new ResponseEntity(RespCode.ERROR_USER,"没有限权！");
                         }
                         commentMapper.delVideoComment(id);
-                        commentMapper.decVideoCommentNum(id);
+                        commentMapper.decVideoCommentNum(maps.get("videoId"));
                         break;
                     case 2:
+                        Map<String,Integer> map=commentReplyMapper.selectUserIdByVideoCommentReplyId(id);
                         if(userType.getUserType()!=4){
-                            Integer s=commentReplyMapper.selectUserIdByVideoCommentReplyId(id);
+                            Integer s=map.get("userId");
                             if(s==null||s!=userId)
                                 return new ResponseEntity(RespCode.ERROR_USER,"没有限权！");
                         }
                         commentReplyMapper.delVideoCommentReply(id);
-                        commentReplyMapper.delVideoCommentReply(id);
-                        commentMapper.updateVideoCommentHasChild(commentReplyMapper.countVideoCommentReply(id),id);
+                        commentMapper.updateVideoCommentHasChild(commentReplyMapper.countVideoCommentReply(id),map.get("videoCommentId"));
                         break;
                 }
                 break;
             case 2:
                 switch (types){
                     case 1:
+                        Map<String,Integer> maps=commentReplyMapper.selectUserIdAndIdByArticleCommentId(id);
                         if(userType.getUserType()!=4){
-                            Integer s=commentReplyMapper.selectUserIdByArticleCommentId(id);
+                            Integer s=maps.get("userId");
                             if(s==null||s!=userId)
                                 return new ResponseEntity(RespCode.ERROR_USER,"没有限权！");
                         }
                         commentMapper.delArticleComment(id);
-                        commentMapper.decArticleCommentNum(id);
+                        commentMapper.decArticleCommentNum(maps.get("articleId"));
                         break;
                     case 2:
+                        Map<String,Integer> map=commentReplyMapper.selectUserIdByArticleCommentReplyId(id);
                         if(userType.getUserType()!=4){
-                            Integer s=commentReplyMapper.selectUserIdByArticleCommentReplyId(id);
+                            Integer s=map.get("userId");
                             if(s==null||s!=userId)
                                 return new ResponseEntity(RespCode.ERROR_USER,"没有限权！");
                         }
                         commentReplyMapper.delArticleCommentReply(id);
-                        commentMapper.updateArticleCommentHasChild(commentReplyMapper.countArticleCommentReply(id),id);
+                        commentMapper.updateArticleCommentHasChild(commentReplyMapper.countArticleCommentReply(id),map.get("articleCommentId"));
                         break;
                 }
                 break;
@@ -91,22 +96,24 @@ public class DelController {
                         dynamicMapper.delDynamic(id);
                         break;
                     case 1:
+                        Map<String,Integer> maps=commentReplyMapper.selectUserIdAndIdByDynamicCommentId(id);
                         if(userType.getUserType()!=4){
-                            Integer s=commentReplyMapper.selectUserIdByDynamicCommentId(id);
+                            Integer s=maps.get("userId");
                             if(s==null||s!=userId)
                                 return new ResponseEntity(RespCode.ERROR_USER,"没有限权！");
                         }
                         commentMapper.delDynamicComment(id);
-                        commentMapper.decDynamicCommentNum(id);
+                        commentMapper.decDynamicCommentNum(maps.get("dynamicId"));
                         break;
                     case 2:
+                        Map<String,Integer> map=commentReplyMapper.selectUserIdByDynamicCommentReplyId(id);
                         if(userType.getUserType()!=4){
-                            Integer s=commentReplyMapper.selectUserIdByDynamicCommentReplyId(id);
+                            Integer s=map.get("userId");
                             if(s==null||s!=userId)
                                 return new ResponseEntity(RespCode.ERROR_USER,"没有限权！");
                         }
                         commentReplyMapper.delDynamicCommentReply(id);
-                        commentMapper.updateDynamicCommentHasChild(commentReplyMapper.countDynamicCommentReply(id),id);
+                        commentMapper.updateDynamicCommentHasChild(commentReplyMapper.countDynamicCommentReply(id),map.get("dynamicCommentId"));
                 }
 
                 break;

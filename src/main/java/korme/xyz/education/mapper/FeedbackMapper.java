@@ -8,6 +8,9 @@ import org.springframework.stereotype.Component;
 @Mapper
 @Component(value = "FeedbackMapper")
 public interface FeedbackMapper {
+    /*
+    * 插入用户反馈
+    * */
     @Insert("INSERT INTO `education`.`feedback`( `feedbackContent`, `createTime`, `creatorId`) VALUES (#{feedbackContent}, NOW(),#{userId})")
     void insertFeedback(@Param("feedbackContent")String feedbackContent,@Param("userId")int userId);
 }

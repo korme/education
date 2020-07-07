@@ -1,12 +1,10 @@
 package korme.xyz.education.controller;
 
 import java.text.ParseException;
-import java.util.Base64;
-import java.util.Map;
-
 import korme.xyz.education.common.response.RespCode;
 import korme.xyz.education.common.response.ResponseEntity;
 import korme.xyz.education.mapper.FeedbackMapper;
+import korme.xyz.education.mapper.SESSIONMapper;
 import korme.xyz.education.mapper.UserMapper;
 import korme.xyz.education.model.UserLoginModel;
 import korme.xyz.education.service.MD5Utils.MD5Util;
@@ -37,9 +35,12 @@ public class UserController {
     TimeUtils timeUtils;
     @Autowired
     FeedbackMapper feedbackMapper;
+    @Autowired
+    SESSIONMapper sessionMapper;
     /*
     * 登录接口
     * */
+    @Transactional
     @GetMapping("/login")
     public ResponseEntity login(@NotBlank String userName, @NotBlank String passWord,
             HttpServletRequest request) throws Exception {
@@ -49,12 +50,19 @@ public class UserController {
             return new ResponseEntity(RespCode.ERROR_USER,"用户不存在或已过期");
         String truePassWord=(String)map.getPassWord();
         try{
-            if(md5Util.getStringMD5(passWord).equalsIgnoreCase(truePassWord)){
+
+            if(md5Util.getStringMD5(passWord).equalsIgnoreCase(truePassWord)){//账号密码正确
                 int userId=(int)map.getUserId();
-                HttpSession sessoin=request.getSession();
-                sessoin.setAttribute("userId",userId);
+
+                sessionMapper.delSESSION(sessionMapper.selectSESSION(map.getOpenId()));
+
+                HttpSession session=request.getSession();
+                session.setAttribute("userId",userId);
+
+                userMapper.updateSessionId(userId,session.getId());
+
                 map.setPassWord("");
-                map.setSessionKey(new sun.misc.BASE64Encoder().encode(sessoin.getId().getBytes()));
+                map.setSessionKey(new sun.misc.BASE64Encoder().encode(session.getId().getBytes()));
                 return new ResponseEntity(RespCode.SUCCESS,map);
             }
             else
@@ -63,6 +71,15 @@ public class UserController {
         catch (Exception e){
             return new ResponseEntity(RespCode.ERROR_INPUT);
         }
+    }
+    @GetMapping("/logout")
+    public  ResponseEntity logout(@SessionAttribute("userId") Integer userId,
+                                  HttpServletRequest request){
+        HttpSession sessoin=request.getSession(false);
+        if(sessoin==null)
+            return new ResponseEntity(RespCode.SUCCESS,"noSession");
+        sessoin.invalidate();
+        return new ResponseEntity(RespCode.SUCCESS,"OK");
     }
     /*
     * 前台用户更改密码

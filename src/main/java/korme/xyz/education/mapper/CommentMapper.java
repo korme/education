@@ -14,10 +14,10 @@ import java.util.Map;
 public interface CommentMapper {
 
     /*
-    * 返回全部评论List
+    * 返回全部评论List  文章 视频 动态 老师
     * */
     @Select("SELECT c.articleCommentId,c.content,c.createTime,c.haschild,u.userId,u.nickName,u.userType,u.headPortrait from article_comment as c LEFT JOIN user as u on c.userId= u.userId where c.articleId=#{articleId} and u.delState=0 and c.delState=0 ORDER BY c.createTime DESC")
-    List<Map<String,Object>> selectArticleComment(@Param("articleId")int articleId);
+    List<Map<String,Object>> selectArticleComment(@Param("articleId")int articleId);//查询字段自表命名c左链接u表关联条件cid=uid当   按创建时间倒序排序
     @Select("SELECT c.videoCommentId,c.content,c.createTime,c.haschild,u.userId,u.nickName,u.userType,u.headPortrait from video_comment as c LEFT JOIN user as u on c.userId= u.userId where c.videoId=#{videoId} and u.delState=0 and c.delState=0 ORDER BY c.createTime DESC")
     List<Map<String,Object>> selectVideoComment(@Param("videoId")int videoId);
     @Select("SELECT c.dynamicCommentId,c.content,c.createTime,c.haschild,u.userId,u.nickName,u.userType,u.headPortrait from dynamic_comment as c LEFT JOIN user as u on c.userId= u.userId where c.dynamicId=#{dynamicId} and u.delState=0 and c.delState=0 ORDER BY c.createTime DESC")
@@ -49,10 +49,10 @@ public interface CommentMapper {
     @Insert("INSERT INTO `education`.`teacher_comment`(`teacherId`, `userId`, `content`, `createTime`) VALUES ( #{c.pId}, #{c.userId}, #{c.content}, NOW())")
     void insertTeacherComment(@Param("c")CommentModel c);
     //评论数自增1
-    @Update("update video set commentNum=commentNum+1 where videoId=#{videoId}")
-    void addVideoCommentNum(@Param("videoId")int videoId);
-    @Update("update article set commentNum=commentNum+1 where articleId=#{articleId}")
-    void addArticleCommentNum(@Param("articleId")int articleId);
+    @Update("update mainpage set commentNum=commentNum+1 where videoOrArticleId=#{videoOrArticleId} and type=1")
+    void addVideoCommentNum(@Param("videoOrArticleId")int videoOrArticleId);
+    @Update("update mainpage set commentNum=commentNum+1 where videoOrArticleId=#{videoOrArticleId} and type=2")
+    void addArticleCommentNum(@Param("videoOrArticleId")int videoOrArticleId);
     @Update("update dynamic set commentNum=commentNum+1 where dynamicId=#{dynamicId}")
     void addDynamicCommentNum(@Param("dynamicId")int dynamicId);
     //删除评论
@@ -66,11 +66,11 @@ public interface CommentMapper {
     void delTeacherComment(@Param("teacherCommentId")int teacherCommentId);
 
     //评论数减一
-    @Update("update video set commentNum=commentNum-1 where videoId=#{videoId}")
+    @Update("update mainpage set commentNum=commentNum-1 where videoOrArticleId=#{videoId} and type=1 and commentNum>0")
     void decVideoCommentNum(@Param("videoId")int videoId);
-    @Update("update article set commentNum=commentNum-1 where articleId=#{articleId}")
+    @Update("update mainpage set commentNum=commentNum-1 where videoOrArticleId=#{articleId} and type=2  and commentNum>0")
     void decArticleCommentNum(@Param("articleId")int articleId);
-    @Update("update dynamic set commentNum=commentNum-1 where dynamicId=#{dynamicId}")
+    @Update("update dynamic set commentNum=commentNum-1 where dynamicId=#{dynamicId} and commentNum>0")
     void decDynamicCommentNum(@Param("dynamicId")int dynamicId);
 
 

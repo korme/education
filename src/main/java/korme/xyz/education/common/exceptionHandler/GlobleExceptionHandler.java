@@ -37,11 +37,11 @@ public class GlobleExceptionHandler {
         else {
 
             //TODO:测试环境
-            /*e.printStackTrace();
-            return new ResponseEntity(RespCode.WRONG,e.toString());*/
+            e.printStackTrace();
+            return new ResponseEntity(RespCode.WRONG,e.toString());
 
             //TODO:生产环境
-            return new ResponseEntity(RespCode.WRONG);
+            //return new ResponseEntity(RespCode.WRONG);
         }
     }
 }

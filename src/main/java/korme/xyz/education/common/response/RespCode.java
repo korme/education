@@ -7,7 +7,8 @@ public enum RespCode {
     ERROR_INPUT(4,"输入内容有误"),
     ERROR_SESSION(5,"用户未登录或Sisson已过期"),
     ERROR_USER(6,"用户错误"),
-    ERROR_NETWORK(7,"网络错误");
+    ERROR_NETWORK(7,"网络错误"),
+    WARN_INPUT(10,"输入含有违规内容");
 
 
     private Integer code;

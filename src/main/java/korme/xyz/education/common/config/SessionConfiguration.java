@@ -2,7 +2,10 @@ package korme.xyz.education.common.config;
 
 
 import korme.xyz.education.common.interceptor.LoginURLInterceptor;
+
 import korme.xyz.education.mapper.UserMapper;
+import org.apache.catalina.SessionListener;
+import org.springframework.boot.web.servlet.ServletListenerRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
@@ -10,12 +13,19 @@ import org.springframework.web.servlet.config.annotation.InterceptorRegistration
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
+import javax.sound.sampled.LineEvent;
+import javax.sound.sampled.LineListener;
+
 @Configuration
 public class SessionConfiguration implements  WebMvcConfigurer {
     @Bean
     public LoginURLInterceptor userInterceptor() {
         return new LoginURLInterceptor();
     }
+
+
+
+
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
 
@@ -43,4 +53,5 @@ public class SessionConfiguration implements  WebMvcConfigurer {
                 .allowedOrigins("*")
                 .allowedHeaders("*");
     }
+
 }

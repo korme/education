@@ -9,6 +9,15 @@ public class UserLoginModel {
     private String overdueTime;
     private String userType;
     private String sessionKey;
+    private String openId;
+
+    public String getOpenId() {
+        return openId;
+    }
+
+    public void setOpenId(String openId) {
+        this.openId = openId;
+    }
 
     public String getSessionKey() {
         return sessionKey;

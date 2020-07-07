@@ -15,7 +15,7 @@ public class LoginURLInterceptor implements HandlerInterceptor {
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object o) throws Exception {
         //todo:生产环境取消注释
-        String uri = request.getRequestURI();
+        //String uri = request.getRequestURI();
         Object object = request.getSession().getAttribute("userId");
         if (null == object){
             response.sendRedirect(request.getContextPath()+"/user/loginError");

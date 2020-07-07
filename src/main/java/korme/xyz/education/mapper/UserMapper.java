@@ -13,9 +13,12 @@ public interface UserMapper {
     /*
      * 根据userName，返回未过期用户的密码
      * */
-    @Select("select passWord,userId,headPortrait,nickName,overdueTime,userType from user " +
+    @Select("select passWord,userId,headPortrait,nickName,overdueTime,userType,openId from user " +
             "where userName=#{userName} and overdueTime>#{now}")
     UserLoginModel findPasswordByUserName(@Param("userName")String userName, @Param("now")String now);
+
+    @Update("update  user set openId=#{sessionId} where userId=#{userId}")
+    void updateSessionId(@Param("userId")int userId,@Param("sessionId")String sessionId);
 
 
     /*

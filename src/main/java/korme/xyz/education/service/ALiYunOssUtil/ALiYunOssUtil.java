@@ -3,9 +3,11 @@ package korme.xyz.education.service.ALiYunOssUtil;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.aliyun.oss.ClientConfiguration;
 import com.aliyun.oss.ClientException;
 import com.aliyun.oss.OSSClient;
 import com.aliyun.oss.OSSException;
+import com.aliyun.oss.common.comm.Protocol;
 import com.aliyun.oss.common.utils.BinaryUtil;
 import com.aliyun.oss.event.ProgressEvent;
 import com.aliyun.oss.event.ProgressEventType;
@@ -52,7 +54,7 @@ public class ALiYunOssUtil {
     /*
     * 文本检测，返回检测完的文本
     * */
-    public List<String> textScan(List<String> textList) throws UnsupportedEncodingException, com.aliyuncs.exceptions.ClientException {
+    public List<String> textScan(List<String> textList) throws Exception {
         IClientProfile profile = DefaultProfile.getProfile(textEndpoint, accessKeyId, accessKeySecret);
         IAcsClient client = new DefaultAcsClient(profile);
         TextScanRequest textScanRequest = new TextScanRequest();
@@ -87,21 +89,24 @@ public class ALiYunOssUtil {
                     for (Object taskResult : taskResults) {
                         if(200 == ((JSONObject)taskResult).getInteger("code")){
                             JSONArray sceneResults = ((JSONObject)taskResult).getJSONArray("results");
-                            if(((JSONObject)taskResult).containsKey("filteredContent"))
-                                result.add((String)((JSONObject)taskResult).get("filteredContent"));
+                            if(((JSONObject)taskResult).containsKey("filteredContent")){
+                                throw new Exception();
+                                //result.add((String)((JSONObject)taskResult).get("filteredContent"));
+                            }
+
                             else
                                 result.add((String)((JSONObject)taskResult).get("content"));
 
                         }else{
-                            System.out.println("task process fail:" + ((JSONObject)taskResult).getInteger("code"));
+                            //System.out.println("task process fail:" + ((JSONObject)taskResult).getInteger("code"));
                         }
                     }
                 } else {
-                    System.out.println("detect not success. code:" + scrResponse.getInteger("code"));
+                    //System.out.println("detect not success. code:" + scrResponse.getInteger("code"));
                     throw new ClientException();
                 }
             }else{
-                System.out.println("response not success. status:" + httpResponse.getStatus());
+                //System.out.println("response not success. status:" + httpResponse.getStatus());
                 throw new ClientException();
             }
             return result;
@@ -113,7 +118,9 @@ public class ALiYunOssUtil {
     public String getTempUploadUrl(String bucketName) throws IOException {
         String host = "https://" + bucketName + "." + endpoint; // host的格式为 bucketname.endpoint
         String fileName = uuidUtil.getUUID(); // 用户上传文件时指定的前缀。
-        this.ossClient = new OSSClient(endpoint, accessKeyId, accessKeySecret);
+        ClientConfiguration conf = new ClientConfiguration();
+        conf.setProtocol(Protocol.HTTPS);
+        this.ossClient = new OSSClient(endpoint, accessKeyId, accessKeySecret,conf);
         try {
             long expireEndTime = System.currentTimeMillis() + 60 * 1000;
             Date expiration = new Date(expireEndTime);//过期时间

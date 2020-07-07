@@ -27,7 +27,7 @@ public interface TeacherScoreMapper {
     /*
     * 更新教师的分数
     * */
-    @Update("update `user` set score=50+(select IFNULL(AVG(t.score),0) from teacher_score t where t.teacherId=#{teacherId}) where user.userId=#{teacherId}")
+    @Update("update `user` set score=50+(select IFNULL(AVG(t.score),0) from teacher_score t where t.teacherId=#{teacherId} and t.createTime>DATE_FORMAT(NOW(),'%Y-%m-00') ) where user.userId=#{teacherId}")
     void updateScore(@Param("teacherId")int teacherId);
 
     /*
